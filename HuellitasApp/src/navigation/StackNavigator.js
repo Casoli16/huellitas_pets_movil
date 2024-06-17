@@ -12,7 +12,8 @@ const StackNavigator = () => {
                 initialRouteName='WelcomeScreen'
                 screenOptions={{
                     headerShown: false,
-                    gestureEnabled: true
+                    gestureEnabled: true,
+                    navigationBarColor: '#FAF0CA'
             }}>
                 <Stack.Screen
                     name='WelcomeScreen'
