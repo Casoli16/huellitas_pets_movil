@@ -1,12 +1,43 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View} from 'react-native';
+import fetchData from './api/components';
 import TabBar from "./src/navigation/TabBar";
 import StackNavigator from "./src/navigation/StackNavigator";
 import {NavigationContainer} from "@react-navigation/native";
+import {useState, useEffect} from "react";
 
 export default function App() {
-  return (
-    <StackNavigator/>
+  //API
+  const API = 'services/public/clientes.php';
+  //Declaramos la variable para guardar si hay un usuario logueado.
+  const [logueado, setLogueado] = useState(false);
+
+  //Verificamos si ya habia una sesion activa - usuario logueado
+  const sessionActive = async () => {
+    const data = await fetchData(API, 'getUser');
+    if(data.session){
+      //Si hay un usuario logueado entonces mandamos true a la variable logueado
+      setLogueado(true);
+    } else {
+      //Si no hay un usuario logueado entonces mandamos false a la variable logueado
+      setLogueado(false);
+    }
+  }
+
+  //Llama la funcion luego de que se haya cargado la pantalla
+  useEffect(() => {
+    sessionActive();
+  }, []);
+
+  return(
+    <NavigationContainer>
+      {/*Verificamos con un if else si hay un usuario logeado, de ser asi entonces*/}
+      {/*se le mostrara el TabBar pero si no, el StackNavigatior(Contiene la pantalla de bienvenidda y login)*/}
+      {logueado ?
+        <TabBar logueado={logueado} setLogueado={setLogueado}/>
+          :
+        <StackNavigator logueado={logueado} setLogueado={setLogueado}/>
+      }
+    </NavigationContainer >
   );
 }
 

@@ -1,4 +1,4 @@
-const HomeScreen = () => {
+const HomeScreen = ({logueado, setLogueado}) => {
 
 }
 

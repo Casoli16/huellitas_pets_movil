@@ -2,7 +2,7 @@ import {View, StyleSheet, Image, Text, Dimensions, Touchable, TouchableOpacity} 
 //Importamos las fuentes a utilizar
 import Fonts from "../../fonts/fonts";
 //Importamos el boton personalizado -- Pueden utilizar este
-import CustomButton from "../components/buttons";
+import CustomButton from "../components/CustomeButton";
 //Importamos la navegacion
 import {useNavigation} from "@react-navigation/native";
 

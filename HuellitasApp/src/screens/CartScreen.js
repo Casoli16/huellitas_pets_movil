@@ -1,4 +1,4 @@
-const CartScreen = ()=> {
+const CartScreen = ({logueado, setLogueado})=> {
 
 }
 

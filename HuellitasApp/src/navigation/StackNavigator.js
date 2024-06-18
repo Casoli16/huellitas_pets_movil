@@ -2,13 +2,13 @@ import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {NavigationContainer} from "@react-navigation/native";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import LoginScreen from "../screens/LoginScreen";
+import CartScreen from "../screens/CartScreen";
 
 const Stack = createNativeStackNavigator();
 
-const StackNavigator = () => {
+const StackNavigator = ({logueado, setLogueado}) => {
     return(
-        <NavigationContainer>
-            <Stack.Navigator
+        <Stack.Navigator
                 initialRouteName='WelcomeScreen'
                 screenOptions={{
                     headerShown: false,
@@ -24,13 +24,14 @@ const StackNavigator = () => {
                 />
                 <Stack.Screen
                     name='LoginScreen'
-                    component={LoginScreen}
                     options={{
                         title: 'Login'
                 }}
-                />
-            </Stack.Navigator>
-        </NavigationContainer>
+                >
+                {/*Pasamos como parametro el estado de la variable logueado.*/}
+                {props => <LoginScreen {...props} setLogueado={setLogueado} logueado={logueado} />}
+                </Stack.Screen>
+        </Stack.Navigator>
     )
 }
 

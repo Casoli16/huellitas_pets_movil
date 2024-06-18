@@ -1,9 +1,12 @@
+import React, { useState } from 'react';
+import fetchData from '../../api/components';
+
 import {View, StyleSheet, Image, Text, Dimensions, Touchable, TouchableOpacity} from "react-native";
 import { TextInput } from 'react-native-paper';
 //Importamos las fuentes a utilizar
 import Fonts from "../../fonts/fonts";
 //Importamos el boton personalizado -- Pueden utilizar este
-import CustomButton from "../components/buttons";
+import CustomButton from "../components/CustomeButton";
 //Importamos la navegacion
 import {useNavigation} from "@react-navigation/native";
 
@@ -12,7 +15,30 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 
-const LoginScreen = () => {
+const LoginScreen = ({ logueado, setLogueado}) => {
+    //Declaracion de campos para el login
+    const [email, setEmail] = useState('');
+    const [pass, setPass] = useState('');
+
+    const USER_API = 'services/public/clientes.php';
+
+    const Login = async () => {
+        //Creamos el forms que mandara los datos a la api
+        const form = new FormData();
+        form.append('correo', email);
+        form.append('clave', pass);
+
+        const data = await fetchData(USER_API, 'logIn', form);
+
+        if(data.status){
+            console.log('Has iniciado sesión');
+            setLogueado(true);
+        } else {
+            console.log('Sorry');
+        }
+    }
+
+    //Utilizamos nuestras fuentes
     Fonts();
 
     return(
@@ -32,6 +58,8 @@ const LoginScreen = () => {
                           style={styles.textInput}
                           //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
                           left={<TextInput.Icon icon="email" />}
+                          value={email}
+                          onChangeText={setEmail}
                       />
                   </View>
                   <View style={styles.input}>
@@ -44,13 +72,15 @@ const LoginScreen = () => {
                           style={styles.textInput}
                           //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
                           left={<TextInput.Icon icon="lock" />}
+                          value={pass}
+                          onChangeText={setPass}
                       />
                       <Text onPress={''} style={styles.pass}>¿Has olvídado tú contraseña?</Text>
                   </View>
               </View>
           </View>
           <View style={styles.buttonBox}>
-              <CustomButton title='Iniciar sesión' colorText='white' buttonColor='#F4D35E' fontSize={16}/>
+              <CustomButton title='Iniciar sesión' colorText='white' buttonColor='#F4D35E' fontSize={16} onPress={Login}/>
           </View>
           <View style={styles.row}>
               <Text style={styles.text1}>¿No tienes cuenta?</Text>

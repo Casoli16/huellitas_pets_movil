@@ -3,15 +3,16 @@ import {NavigationContainer} from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import ShopScreen from "../screens/ShopScreen";
 import HomeScreen from "../screens/HomeScreen";
-import homeScreen from "../screens/HomeScreen";
-import profileScreen from "../screens/ProfileScreen";
+import CartScreen from "../screens/CartScreen";
+import ProfileScreen from "../screens/ProfileScreen";
+import LogOut from '../components/LogOut';
+import StackNavigator from "./StackNavigator";
 
 const Tab = createBottomTabNavigator();
 
-const TabBar = () =>  {
+const TabBar = ({logueado, setLogueado}) =>  {
     return (
-        <NavigationContainer>
-            <Tab.Navigator screenOptions={{
+        <Tab.Navigator initialRouteName='Home' screenOptions={{
                 // Estilos para el tabBar
                 tabBarStyle: styles.tabBar,
                 tabBarActiveTintColor: 'black',
@@ -22,56 +23,75 @@ const TabBar = () =>  {
             }}>
                 <Tab.Screen
                     name='Cart'
-                    component={HomeScreen}
                     options={{
                         title: 'Carrito',
                         tabBarIcon: () => (
                             <Image source={require('../../assets/TabBarIcons/shoppingCart.png')}/>
                         )
                     }}
-                />
+                >
+                {/*Pasamos como parametro el estado de la variable logueado.*/}
+                {props => <CartScreen {...props} setLogueado={setLogueado} logueado={logueado} />}
+                </Tab.Screen>
                 <Tab.Screen
                     name='Shop'
-                    component={ShopScreen}
                     options={{
                         title: 'Tienda',
                         tabBarIcon: () => (
                             <Image source={require('../../assets/TabBarIcons/shop.png')}/>
                         )
                     }}
-                />
+                >
+                {/*Pasamos como parametro el estado de la variable logueado.*/}
+                {props => <ShopScreen {...props} setLogueado={setLogueado} logueado={logueado} />}
+                </Tab.Screen>
                 <Tab.Screen
                     name='Home'
-                    component={HomeScreen}
                     options={{
                         title: 'Inicio',
                         tabBarIcon: () => (
                             <Image source={require('../../assets/TabBarIcons/home.png')}/>
                         )
                 }}
-                />
+                >
+                {/*Pasamos como parametro el estado de la variable logueado.*/}
+                {props => <HomeScreen {...props} setLogueado={setLogueado} logueado={logueado} />}
+                </Tab.Screen>
                 <Tab.Screen
                     name='logOut'
-                    component={homeScreen}
                     options={{
+                        headerShown: false,
                         title: 'Cerrar sesión',
                         tabBarIcon: () => (
                             <Image source={require('../../assets/TabBarIcons/logOut.png')}/>
                         )
                     }}
-                />
+                >
+                {/*Pasamos como parametro el estado de la variable logueado.*/}
+                {props => <LogOut {...props} setLogueado={setLogueado} logueado={logueado} />}
+                </Tab.Screen>
                 <Tab.Screen
                     name='Profile'
-                    component={profileScreen}
                     options={{
                         title: 'Mi perfil',
                         tabBarIcon: () => (
                             <Image source={require('../../assets/TabBarIcons/profile.png')}/>
                         )
                     }}
+                >
+                {/*Pasamos como parametro el estado de la variable logueado.*/}
+                {props => <ProfileScreen {...props} setLogueado={setLogueado} logueado={logueado} />}
+                </Tab.Screen>
+
+            <Tab.Screen
+                    name='StackNavigator'
+                    component={StackNavigator}
+                    options={({
+                        tabBarButton: ()=> null,
+                        headerShown: false
+                    })}
                 />
-            </Tab.Navigator>
-        </NavigationContainer>
+        </Tab.Navigator>
     );
 }
 
