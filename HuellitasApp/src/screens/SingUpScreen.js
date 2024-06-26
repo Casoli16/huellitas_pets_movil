@@ -3,6 +3,8 @@ import fetchData from '../../api/components';
 
 import {View, StyleSheet, Image, Text, Dimensions, Touchable, TouchableOpacity, ScrollView} from "react-native";
 import { TextInput } from 'react-native-paper';
+import { TextInputMask } from 'react-native-masked-text';
+import DateTimePicker from '@react-native-community/datetimepicker';
 //Importamos las fuentes a utilizar
 import Fonts from "../../fonts/fonts";
 //Importamos el boton personalizado -- Pueden utilizar este
@@ -51,7 +53,7 @@ const SingUpScreen = ({ logueado, setLogueado}) => {
         const day = String(currentDate.getDate()).padStart(2, '0');
 
         const fechaNueva = `${year}-${month}-${day}`;
-        setFechaNacimiento(fechaNueva)
+        setBirthdate(fechaNueva)
     };
 
     const showMode = (currentMode) => {
@@ -155,10 +157,18 @@ const SingUpScreen = ({ logueado, setLogueado}) => {
                             mode='outlined'
                             outlineColor='#fff'
                             style={styles.textInput}
-                            //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
                             left={<TextInput.Icon icon="card-account-details-outline" />}
-                            value={dui}
-                            onChangeText={setDUI}
+                            render={(props) => (
+                                <TextInputMask
+                                    {...props}
+                                    type={'custom'}
+                                    options={{
+                                        mask: '99999999-9'
+                                    }}
+                                    value={dui}
+                                    onChangeText={setDUI}
+                                />
+                            )}
                         />
                     </View>
                     <View style={styles.input}>
@@ -181,27 +191,50 @@ const SingUpScreen = ({ logueado, setLogueado}) => {
                             activeOutlineColor='#c5c4c2'
                             textContentType='telephoneNumber'
                             mode='outlined'
+                            placeholder="0000-0000"
                             outlineColor='#fff'
                             style={styles.textInput}
-                            //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
                             left={<TextInput.Icon icon="phone-outline" />}
-                            value={phone}
-                            onChangeText={setPhone}
+                            render={(props) => (
+                                <TextInputMask
+                                    {...props}
+                                    type={'custom'}
+                                    options={{
+                                        mask: '9999-9999'
+                                    }}
+                                    value={phone}
+                                    onChangeText={setPhone}
+                                />
+                            )}
                         />
                     </View>
                     <View style={styles.input}>
                         <Text style={styles.inputText}>Fecha de nacimiento</Text>
-                        <TextInput
-                            activeOutlineColor='#c5c4c2'
-                            textContentType='birthday'
-                            mode='outlined'
-                            outlineColor='#fff'
-                            style={styles.textInput}
-                            //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
-                            left={<TextInput.Icon icon="calendar-month" />}
-                            value={birthdate}
-                            onChangeText={setBirthdate}
-                        />
+                        <TouchableOpacity onPress={showDatepicker} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <TextInput
+                                activeOutlineColor='#c5c4c2'
+                                textContentType='birthday'
+                                mode='outlined'
+                                outlineColor='#fff'
+                                style={[styles.textInput, { flex: 1 }]} // Asegúrate de que el TextInput ocupe todo el espacio
+                                //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
+                                left={<TextInput.Icon icon="calendar-month" />}
+                                value={birthdate}
+                                onChangeText={setBirthdate}
+                                editable={false} // Deshabilita la edición directa del TextInput
+                            />
+                        </TouchableOpacity>
+                        {show && (
+                            <DateTimePicker
+                                testID="dateTimePicker"
+                                value={date}
+                                mode="date"
+                                is24Hour={true}
+                                minimumDate={new Date(new Date().getFullYear() - 100, new Date().getMonth(), new Date().getDate())} // Fecha mínima permitida (100 años atrás desde la fecha actual)
+                                maximumDate={new Date()} // Fecha máxima permitida (fecha actual)
+                                onChange={onChange}
+                            />
+                        )}
                     </View>
                     <View style={styles.input}>
                         <Text style={styles.inputText}>Dirección</Text>
@@ -323,6 +356,18 @@ const styles = StyleSheet.create({
     text2: {
         fontFamily: 'Jost_600SemiBold',
         fontSize: 16
+    },
+    fecha: {
+        fontWeight: '600',
+        color: '#FFF'
+    },
+    contenedorFecha: {
+        backgroundColor: '#A79277',
+        color: "#fff", fontWeight: '800',
+        width: 250,
+        borderRadius: 5,
+        padding: 5,
+        marginVertical: 10
     }
 })
 
