@@ -2,6 +2,7 @@ import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {NavigationContainer} from "@react-navigation/native";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import LoginScreen from "../screens/LoginScreen";
+import SingUpScreen from "../screens/SingUpScreen";
 import CartScreen from "../screens/CartScreen";
 
 const Stack = createNativeStackNavigator();
@@ -20,6 +21,13 @@ const StackNavigator = ({logueado, setLogueado}) => {
                     component={WelcomeScreen}
                     options={{
                         title: 'Pantalla de bienvenida'
+                }}
+                />
+                <Stack.Screen
+                    name='SingUpScreen'
+                    component={SingUpScreen}
+                    options={{
+                        title: 'Sing Up'
                 }}
                 />
                 <Stack.Screen

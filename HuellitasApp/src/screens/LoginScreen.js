@@ -28,6 +28,8 @@ const LoginScreen = ({ logueado, setLogueado}) => {
         form.append('correo', email);
         form.append('clave', pass);
 
+
+
         const data = await fetchData(USER_API, 'logIn', form);
 
         if(data.status){
@@ -40,6 +42,15 @@ const LoginScreen = ({ logueado, setLogueado}) => {
 
     //Utilizamos nuestras fuentes
     Fonts();
+
+    //Usamos la navegacion que se ha creado - ver archivo navigation/StackNavigator.
+    const navigation = useNavigation();
+
+    //Creamos una funcion que nos diriga para la pantalla que queremos.
+    const goToSingUp = () => {
+    //Identificamos a la pantalla con el name que se le puso en el StackNavigator.
+    navigation.navigate('SingUpScreen');
+    };
 
     return(
       <View style={styles.container}>
@@ -84,7 +95,7 @@ const LoginScreen = ({ logueado, setLogueado}) => {
           </View>
           <View style={styles.row}>
               <Text style={styles.text1}>¿No tienes cuenta?</Text>
-              <Text onPress={''} style={styles.text2}>Registrar sesión</Text>
+              <Text onPress={goToSingUp} style={styles.text2}>Registrar sesión</Text>
           </View>
       </View>
     );

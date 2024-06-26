@@ -1,7 +1,7 @@
 // Función que maneja las peticiones fetch
 export default async function fetchData(filename, action, form = null) {
     // Variable que guarda la ip para importarla en la ruta general del servidor
-    let ip = `192.168.0.23`;
+    let ip = `192.168.1.9`;
 
     // URL base del servidor
     const SERVER_URL = `http://${ip}/Huellitas_pets/system_huellitas/api/`;
