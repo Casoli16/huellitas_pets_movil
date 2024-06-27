@@ -112,8 +112,6 @@ const styles = StyleSheet.create({
     },
     header:{
         backgroundColor: '#F4D35E',
-        borderBottomRightRadius: 25,
-        borderBottomLeftRadius: 25
     }
 });
 
