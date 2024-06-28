@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import fetchData from '../../api/components';
-import { View, StyleSheet, Image, Text, Dimensions, ScrollView, Button } from "react-native"; // Añadido Button
+import { View, StyleSheet, Image, Text, Dimensions, ScrollView } from "react-native";
 import { TextInput, IconButton } from 'react-native-paper';
 import { TextInputMask } from 'react-native-masked-text';
-import { useNavigation, useRoute } from "@react-navigation/native";
-import Fonts from "../../fonts/fonts";
-import {SERVER_URL} from "../../api/components";
-import { useFocusEffect } from '@react-navigation/native';
-
-//Importamos el boton personalizado -- Pueden utilizar este
+import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import CustomButton from "../components/CustomeButton";
+import UpdatePasswordModal from '../components/UpdatePasswordModal';
+import { SERVER_URL } from "../../api/components";
 
 const width = Dimensions.get("window").width;
 
@@ -23,13 +20,14 @@ const ProfileScreen = () => {
         nacimiento_cliente: '',
         direccion_cliente: ''
     });
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
 
     const USER_API = 'services/public/clientes.php';
 
     const fetchProfileData = async () => {
         try {
             const data = await fetchData(USER_API, 'readProfile');
-            console.log('Profile data:', data); // Verifica los datos recibidos
+            console.log('Profile data:', data);
 
             if (data.status === 1 && data.dataset) {
                 setProfile(data.dataset);
@@ -58,22 +56,19 @@ const ProfileScreen = () => {
     }, [updated]);
 
     const goToEditar = () => {
-
         navigation.navigate('StackNavigator', {
             screen: 'EditProfileScreen'
         });
-    }
-
-    Fonts();
+    };
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <IconButton icon="history" size={35} onPress={goToEditar}/>
+                    <IconButton icon="history" size={35} onPress={goToEditar} />
                 </View>
                 <View style={styles.col}>
-                    <Image style={styles.img} source={{uri:`${SERVER_URL}images/clientes/${profile.imagen_cliente}`}}/>
+                    <Image style={styles.img} source={{ uri: `${SERVER_URL}images/clientes/${profile.imagen_cliente}` }} />
                     <View style={styles.inputBox}>
                         <View style={styles.input}>
                             <Text style={styles.inputText}>Nombre</Text>
@@ -85,7 +80,7 @@ const ProfileScreen = () => {
                                 style={styles.textInput}
                                 left={<TextInput.Icon icon="account" />}
                                 value={profile.nombre_cliente}
-                                editable={false} // Solo lectura
+                                editable={false}
                             />
                         </View>
                         <View style={styles.input}>
@@ -98,7 +93,7 @@ const ProfileScreen = () => {
                                 style={styles.textInput}
                                 left={<TextInput.Icon icon="account-plus" />}
                                 value={profile.apellido_cliente}
-                                editable={false} // Solo lectura
+                                editable={false}
                             />
                         </View>
                         <View style={styles.input}>
@@ -114,11 +109,9 @@ const ProfileScreen = () => {
                                     <TextInputMask
                                         {...props}
                                         type={'custom'}
-                                        options={{
-                                            mask: '99999999-9'
-                                        }}
+                                        options={{ mask: '99999999-9' }}
                                         value={profile.dui_cliente}
-                                        editable={false} // Solo lectura
+                                        editable={false}
                                     />
                                 )}
                             />
@@ -133,7 +126,7 @@ const ProfileScreen = () => {
                                 style={styles.textInput}
                                 left={<TextInput.Icon icon="email" />}
                                 value={profile.correo_cliente}
-                                editable={false} // Solo lectura
+                                editable={false}
                             />
                         </View>
                         <View style={styles.input}>
@@ -150,11 +143,9 @@ const ProfileScreen = () => {
                                     <TextInputMask
                                         {...props}
                                         type={'custom'}
-                                        options={{
-                                            mask: '9999-9999'
-                                        }}
+                                        options={{ mask: '9999-9999' }}
                                         value={profile.telefono_cliente}
-                                        editable={false} // Solo lectura
+                                        editable={false}
                                     />
                                 )}
                             />
@@ -169,7 +160,7 @@ const ProfileScreen = () => {
                                 style={[styles.textInput, { flex: 1 }]}
                                 left={<TextInput.Icon icon="calendar-month" />}
                                 value={profile.nacimiento_cliente}
-                                editable={false} // Solo lectura
+                                editable={false}
                             />
                         </View>
                         <View style={styles.input}>
@@ -182,17 +173,18 @@ const ProfileScreen = () => {
                                 style={styles.textInput}
                                 left={<TextInput.Icon icon="compass-outline" />}
                                 value={profile.direccion_cliente}
-                                editable={false} // Solo lectura
+                                editable={false}
                             />
                         </View>
                         <View style={styles.buttonContainer}>
-                            <CustomButton title='Editar' colorText='white' buttonColor='#EE964B' fontSize={16} buttonMargin={10} onPress={goToEditar}/>
-                            <CustomButton title='Actualizar contraseña' colorText='white' buttonColor='#F95738' fontSize={16} onPress={goToEditar}/>
+                            <CustomButton title='Editar' colorText='white' buttonColor='#EE964B' fontSize={16} buttonMargin={10} onPress={goToEditar} />
+                            <CustomButton title='Actualizar contraseña' colorText='white' buttonColor='#F95738' fontSize={16} onPress={() => setShowPasswordModal(true)} />
                         </View>
                         <View style={styles.input}></View>
                     </View>
                 </View>
             </View>
+            <UpdatePasswordModal visible={showPasswordModal} onClose={() => setShowPasswordModal(false)} />
         </ScrollView>
     );
 };
@@ -233,7 +225,7 @@ const styles = StyleSheet.create({
     textInput: {
         elevation: 5,
         borderRadius: 10,
-        backgroundColor:'#EDEDED'
+        backgroundColor: '#EDEDED'
     },
     buttonContainer: {
         flexDirection: 'row',
