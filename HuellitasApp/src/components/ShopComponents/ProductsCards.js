@@ -1,8 +1,10 @@
 import {Button, Card} from "react-native-paper";
 import {Image, View, StyleSheet, Text, Dimensions, ScrollView} from "react-native";
 import Fonts from "../../../fonts/fonts";
+//Importamos la funcion fecthData, asi como tambien la variable SERVER_URL
 import fetchData, {SERVER_URL} from "../../../api/components";
 import {useEffect, useState} from "react";
+import {useNavigation} from "@react-navigation/native";
 
 // Obtiene el tamaño de la pantalla en la que este.
 const windowHeight = Dimensions.get('window').height;
@@ -14,20 +16,36 @@ const ProductsCards =  ({pet, search}) => {
     //Arreglo que guardara la data traida de nuestra api
     const [products, setProducts] = useState([]);
     const API = 'services/public/productos.php';
+    //Usamos la navegacion que se ha creado - ver archivo navigation/StackNavigator.
+    const navigation = useNavigation();
+
+    //En este caso, como esta pantalla se encuentra en el tabBar y no en el stackNavigator, no vamos a poder dirigirnos a la pantalla de productDetails
+    //directamente, para ello primero vamos a entrar al name: StackNavigator(Ubicado en el TabBar) y luego que entramos al StackNavigator
+    //ahora si nos vamos a la pantalla de productsDetails.
+    const goToProductsDetails = (idProducto) => {
+
+        navigation.navigate('StackNavigator', {
+            screen: 'productsDetails',
+            params: {idProducto}
+        });
+    }
 
     //Funcion que permite mostrar los productos.
     const fillCards = async ()=> {
         let action;
-        const FORM = new FormData();
+        let FORM = new FormData();
 
-        //Verifica si viene search, de ser asi, entonces enviara en el form lo que venga
-        // de search y manda la accion de busqueda, pero si no entonces se trae todos los productos filtrados por su mascota
+        //Verifica si viene search, de ser asi, entonces enviara en el form lo que venga, pero si en cambio viene pet entonces
+        //se trae todos los productos filtrados por su mascota, pero si no viene nada entonces cae en else y trae todos los productos
         if(search){
             FORM.append('search', search);
             action = 'searchProducts';
-        } else{
+        } else if(pet){
             FORM.append('mascota', pet);
             action = 'readSpecificProduct';
+        } else{
+            action = 'readAllProducts';
+            FORM = null
         }
 
         const DATA = await fetchData(API, action, FORM);
@@ -51,7 +69,7 @@ const ProductsCards =  ({pet, search}) => {
         <View style={styles.container}>
             <View style={styles.row}>
                 {products.map((products, index) => (
-                    <Card key={index} mode={"elevated"} contentStyle={styles.card}>
+                    <Card key={index} mode={"elevated"} contentStyle={styles.card} onPress={() => {goToProductsDetails(products.id_producto)}}>
                         <Image source={{uri:`${SERVER_URL}images/productos/${products.imagen_producto}`}} style={{width: 140, height: 140}} />
                         <View style={styles.contentCard}>
                             <Text style={styles.productName}>{products.nombre_producto}</Text>

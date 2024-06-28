@@ -1,18 +1,48 @@
-import {useState} from "react";
+import {useEffect, useState, useRef} from "react";
 import Fonts from "../../fonts/fonts";
 import {ImageBackground, ScrollView, StyleSheet, Text, View} from "react-native";
 import {Chip, Searchbar} from "react-native-paper";
 import ProductsCards from "../components/ShopComponents/ProductsCards";
+import {useNavigation, useRoute} from "@react-navigation/native";
 
 
 const ShopScreen = ()=>{
 
+    const scrollViewRef = useRef(null);
+    //Usamos la navegacion que se ha creado - ver archivo navigation/StackNavigator.
+    const navigation = useNavigation();
+    //Recibimos los parametros que vienen de homeScreen
+    const route = useRoute();
+    const { pet } = route.params || '';
+
     Fonts();
 
     // Manejo del cambio de pantallas.
-    const [activeSection, setActiveSection] = useState('Perros');
+    const [activeSection, setActiveSection] = useState('');
     //Manejo para el estilo de los botones.
-    const [activeChip, setActiveChip] = useState('Perros');
+    const [activeChip, setActiveChip] = useState('');
+
+    useEffect(() => {
+        // Revisa si viene pet, de ser asi entonces se van a mostrar los productos dependiendo de la mascota que venga.
+        if (pet) {
+            setActiveSection(pet);
+            setActiveChip(pet);
+        // Si no viene nada entonces se van a cargar los productos para perros.
+        } else {
+            setActiveSection('Perros');
+            setActiveChip('Perros');
+        }
+
+        //MANEJO DE SCROLL (Para que cuando se vuelva a ver la pantalla, vuelva al inicio)
+        //Funcion que manda al scroll a su posicion inicial
+        const scrollToTop = () => {
+            scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
+        }
+
+        //Evento que se activa cuando se abre la pantalla de HomeScreen(Esta pantalla)
+        navigation.addListener('focus', scrollToTop);
+
+    }, [pet, navigation]); // Le pasamos la navegacion para que pueda identificar los cambios de pantalla
 
     //Para manejar el search input
     const [search, setSearch] = useState('');
@@ -50,7 +80,7 @@ const ShopScreen = ()=>{
     }
 
     return(
-        <ScrollView>
+        <ScrollView ref={scrollViewRef}>
             <View style={styles.container}>
                 <ImageBackground source={image} resizeMode="cover">
                     <Text style={styles.title}>{title}</Text>

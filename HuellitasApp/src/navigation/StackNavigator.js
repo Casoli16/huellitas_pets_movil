@@ -1,9 +1,9 @@
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {NavigationContainer} from "@react-navigation/native";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import LoginScreen from "../screens/LoginScreen";
 import SingUpScreen from "../screens/SingUpScreen";
-import CartScreen from "../screens/CartScreen";
+import ProductsDetails from "../screens/ProductsDetails";
+import {StyleSheet} from "react-native";
 
 const Stack = createNativeStackNavigator();
 
@@ -14,7 +14,10 @@ const StackNavigator = ({logueado, setLogueado}) => {
                 screenOptions={{
                     headerShown: false,
                     gestureEnabled: true,
-                    navigationBarColor: '#FAF0CA'
+                    // Estilos para el header
+                    headerStyle: styles.header,
+                    headerTitleAlign: "center",
+                    headerTintColor: '#fff',
             }}>
                 <Stack.Screen
                     name='WelcomeScreen'
@@ -39,8 +42,23 @@ const StackNavigator = ({logueado, setLogueado}) => {
                 {/*Pasamos como parametro el estado de la variable logueado.*/}
                 {props => <LoginScreen {...props} setLogueado={setLogueado} logueado={logueado} />}
                 </Stack.Screen>
+                <Stack.Screen
+                    name='productsDetails'
+                    component={ProductsDetails}
+                    options={{
+                        title: 'Producto',
+                        headerShown: true
+                    }}
+                />
         </Stack.Navigator>
-    )
+    );
 }
+
+const styles = StyleSheet.create({
+    header:{
+        backgroundColor: '#F4D35E',
+    }
+});
+
 
 export default StackNavigator;

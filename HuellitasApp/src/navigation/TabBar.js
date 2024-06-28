@@ -7,15 +7,18 @@ import CartScreen from "../screens/CartScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import LogOut from '../components/LogOut';
 import StackNavigator from "./StackNavigator";
+import fetchData, {SERVER_URL} from "../../api/components";
 
 const Tab = createBottomTabNavigator();
 
-const TabBar = ({logueado, setLogueado}) =>  {
+const TabBar = ({logueado, setLogueado, name, picture}) =>  {
+    const firstName = name.split(" ")[0];
+
     return (
         <Tab.Navigator initialRouteName='Home' screenOptions={{
                 // Estilos para el tabBar
                 tabBarStyle: styles.tabBar,
-                tabBarActiveTintColor: 'black',
+                tabBarActiveTintColor: '#ef5400',
                 // Estilos para el header
                 headerStyle: styles.header,
                 headerTitleAlign: "center",
@@ -43,7 +46,7 @@ const TabBar = ({logueado, setLogueado}) =>  {
                     }}
                 >
                 {/*Pasamos como parametro el estado de la variable logueado.*/}
-                {props => <ShopScreen {...props} setLogueado={setLogueado} logueado={logueado} />}
+                {props => <ShopScreen {...props} setLogueado={setLogueado} logueado={logueado}/>}
                 </Tab.Screen>
                 <Tab.Screen
                     name='Home'
@@ -55,7 +58,7 @@ const TabBar = ({logueado, setLogueado}) =>  {
                 }}
                 >
                 {/*Pasamos como parametro el estado de la variable logueado.*/}
-                {props => <HomeScreen {...props} setLogueado={setLogueado} logueado={logueado} />}
+                {props => <HomeScreen {...props} setLogueado={setLogueado} logueado={logueado} name={name} />}
                 </Tab.Screen>
                 <Tab.Screen
                     name='logOut'
@@ -73,9 +76,9 @@ const TabBar = ({logueado, setLogueado}) =>  {
                 <Tab.Screen
                     name='Profile'
                     options={{
-                        title: 'Mi perfil',
+                        title: firstName,
                         tabBarIcon: () => (
-                            <Image source={require('../../assets/TabBarIcons/profile.png')}/>
+                            <Image style={{width: 30, height: 30, borderRadius: 100/2}} source={{uri:`${SERVER_URL}images/clientes/${picture}`}}/>
                         )
                     }}
                 >

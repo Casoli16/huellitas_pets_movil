@@ -2,25 +2,56 @@ import {View, StyleSheet, Text, Image, Dimensions, TouchableOpacity, ScrollView}
 import {LinearGradient} from "expo-linear-gradient";
 import Fonts from "../../fonts/fonts";
 import {Searchbar} from "react-native-paper";
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
+import {useNavigation} from "@react-navigation/native";
+import ProductsCards from "../components/ShopComponents/ProductsCards";
 
 // Obtiene el tamaño de la pantalla en la que este.
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
-const HomeScreen = ({logueado, setLogueado}) => {
+const HomeScreen = ({logueado, setLogueado, name}) => {
     Fonts();
 
+    const firstName = name.split(" ")[0];
+
+    //Usamos la navegacion que se ha creado - ver archivo navigation/StackNavigator.
+    const navigation = useNavigation();
+    //Para el manejo de la posicion inicial del scroll
+    const scrollViewRef = useRef(null);
     //Para manejar el search input
     const [search, setSearch] = useState('');
 
+    //Creamos una funcion que nos diriga para la pantalla que queremos y mandamos como parametro
+    // el tipo de mascota seleccionada.
+    const goToProducts = (pet) => {
+
+        //Identificamos a la pantalla con el name que se le puso en el StackNavigator.
+        navigation.navigate('Shop', {
+            pet: pet
+        });
+    };
+
+    useEffect(() => {
+        //MANEJO DE SCROLL (Para que cuando se vuelva a ver la pantalla, vuelva al inicio)
+        //Funcion que manda al scroll a su posicion inicial
+        const scrollToTop = () => {
+            scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
+        }
+
+        //Evento que se activa cuando se abre la pantalla de HomeScreen(Esta pantalla)
+        navigation.addListener('focus', scrollToTop);
+
+    }, [navigation]); // Le pasamos la navegacion para que pueda identificar los cambios de pantalla
+
+
     return(
-        <ScrollView>
+        <ScrollView ref={scrollViewRef}>
             <View style={styles.container}>
                 <LinearGradient style={styles.linearGradient} colors={['#EE964B', '#88562B' ]}>
                     <View style={styles.row}>
                         <View style={styles.col}>
-                            <Text style={styles.name}>¡Hola Susan!</Text>
+                            <Text style={styles.name}>¡Hola {firstName}!</Text>
                             <Text style={styles.subTitle}>Es un gusto tenerte de vuelta, descubre los productos más vendidos</Text>
                         </View>
                         <Image source={require('../../assets/shopImages/boxCat.png')}/>
@@ -34,31 +65,36 @@ const HomeScreen = ({logueado, setLogueado}) => {
                     <View style={styles.col2}>
                         <Text style={styles.textPets}>Mascotas:</Text>
                         <Text style={styles.subtitlePets}>Elige los productos para tú mascota</Text>
-                        <TouchableOpacity style={styles.contentPet1}>
+                        <TouchableOpacity style={styles.contentPet1} onPress={()=>goToProducts('Gatos')}>
                             <Image style={styles.img1} source={require('../../assets/shopImages/pet1.png')}/>
-                            <Text style={styles.textPets2}>Perros</Text>
+                            <Text style={styles.textPets2}>Gatos</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.contentPet2}>
+                        <TouchableOpacity style={styles.contentPet2} onPress={()=>goToProducts('Perros')}>
                             <Image style={styles.img2} source={require('../../assets/shopImages/pet2.png')}/>
                             <Text style={styles.textPets2}>Perros</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
+                <Text style={styles.titleProducts}>Los productos más vendidos</Text>
                 <Searchbar
-                    style={{marginVertical: 15, backgroundColor:'#e4e2e2'}}
+                    style={{marginTop: 15, backgroundColor:'#f4f2f2', marginHorizontal: 10}}
                     placeholder="Buscar productos"
-                    onChangeText={''}
-                    value={''}
+                    onChangeText={setSearch}
+                    value={search}
                 />
+
+                <ProductsCards search={search}/>
+
             </View>
         </ScrollView>
     )
 }
 const styles = StyleSheet.create({
     container: {
+        backgroundColor: 'white',
         flex: 1,
-        marginHorizontal: windowWidth * 0.03,
-        marginBottom: windowHeight * 0.07,
+        marginHorizontal: 2,
+        marginBottom: windowHeight * 0.01,
     },
     row: {
         flexDirection: "row",
@@ -75,7 +111,8 @@ const styles = StyleSheet.create({
     },
     linearGradient: {
         borderRadius: 10,
-        marginVertical: 20
+        marginVertical: 20,
+        marginHorizontal: 10
     },
     name: {
         fontFamily: 'Jost_700Bold',
@@ -133,6 +170,12 @@ const styles = StyleSheet.create({
         fontFamily: 'Jost_400Regular',
         fontSize: 15,
         marginTop: 5
+    },
+    titleProducts: {
+        fontFamily: 'Jost_700Bold',
+        fontSize: 20,
+        marginTop: 15,
+        marginHorizontal: 15
     }
 })
 export default HomeScreen;

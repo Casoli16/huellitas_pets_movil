@@ -10,6 +10,8 @@ export default function App() {
   const API = 'services/public/clientes.php';
   //Declaramos la variable para guardar si hay un usuario logueado.
   const [logueado, setLogueado] = useState(false);
+  const [name, setName] = useState('');
+  const [picture, setPicture] = useState('');
 
   //Verificamos si ya habia una sesion activa - usuario logueado
   const sessionActive = async () => {
@@ -17,6 +19,8 @@ export default function App() {
     if(data.session){
       //Si hay un usuario logueado entonces mandamos true a la variable logueado
       setLogueado(true);
+      setName(data.name);
+      setPicture(data.picture);
     } else {
       //Si no hay un usuario logueado entonces mandamos false a la variable logueado
       setLogueado(false);
@@ -26,14 +30,14 @@ export default function App() {
   //Llama la funcion luego de que se haya cargado la pantalla
   useEffect(() => {
     sessionActive();
-  }, []);
+  }, [logueado, name, picture]);
 
   return(
     <NavigationContainer>
       {/*Verificamos con un if else si hay un usuario logeado, de ser asi entonces*/}
       {/*se le mostrara el TabBar pero si no, el StackNavigatior(Contiene la pantalla de bienvenidda y login)*/}
       {logueado ?
-        <TabBar logueado={logueado} setLogueado={setLogueado}/>
+        <TabBar logueado={logueado} setLogueado={setLogueado} name={name} picture={picture}/>
           :
         <StackNavigator logueado={logueado} setLogueado={setLogueado}/>
       }
