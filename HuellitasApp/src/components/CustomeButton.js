@@ -1,9 +1,9 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-const CustomButton = ({ title, onPress, colorText, fontSize, buttonColor}) => {
+const CustomButton = ({ title, onPress, colorText, fontSize, buttonColor, buttonMargin}) => {
 
     return (
-        <TouchableOpacity style={{backgroundColor: buttonColor, padding: 15, borderRadius: 10}} onPress={onPress}>
+        <TouchableOpacity style={{backgroundColor: buttonColor, padding: 13, borderRadius: 10, marginEnd: buttonMargin}} onPress={onPress}>
             <Text style={{
                 fontFamily: 'Jost_500Medium',
                 textAlign: 'center',
