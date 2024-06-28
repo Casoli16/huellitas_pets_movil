@@ -1,68 +1,128 @@
 import React, { useState, useEffect } from 'react';
 import fetchData from '../../api/components';
-import { View, StyleSheet, Image, Text, Dimensions, ScrollView, Button } from "react-native"; // Añadido Button
+import { View, StyleSheet, Image, Text, Dimensions, ScrollView, TouchableOpacity, Button } from "react-native"; // Añadido Button
 import { TextInput, IconButton } from 'react-native-paper';
 import { TextInputMask } from 'react-native-masked-text';
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
+import DateTimePicker from '@react-native-community/datetimepicker';
 import Fonts from "../../fonts/fonts";
 import {SERVER_URL} from "../../api/components";
-import { useFocusEffect } from '@react-navigation/native';
 
 //Importamos el boton personalizado -- Pueden utilizar este
 import CustomButton from "../components/CustomeButton";
 
 const width = Dimensions.get("window").width;
 
-const ProfileScreen = () => {
-    const [profile, setProfile] = useState({
-        nombre_cliente: '',
-        apellido_cliente: '',
-        dui_cliente: '',
-        correo_cliente: '',
-        telefono_cliente: '',
-        nacimiento_cliente: '',
-        direccion_cliente: ''
-    });
+const EditProfileScreen = () => {
+    const [profile, setProfile] = useState({});
+
+    //Campos necesarios para date picker
+    const [date, setDate] = useState(new Date());
+    const [mode, setMode] = useState('date');
+    const [show, setShow] = useState(false);
+
+    //Declaracion de campos para el login
+    const [name, setName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [dui, setDUI] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [birthdate, setBirthdate] = useState('');
+    const [direction, setDirection] = useState('');
+
+            /*
+    Codigo para mostrar el datetimepicker
+    */
+
+    const onChange = (event, selectedDate) => {
+        const currentDate = selectedDate;
+        setShow(false);
+        setDate(currentDate);
+        /*
+        Codigo para convertir la fecha al formato año-mes-dia */
+
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const day = String(currentDate.getDate()).padStart(2, '0');
+
+        const fechaNueva = `${year}-${month}-${day}`;
+        setBirthdate(fechaNueva)
+    };
+
+    const showMode = (currentMode) => {
+        setShow(true);
+        setMode(currentMode);
+    };
+
+    const showDatepicker = () => {
+        showMode('date');
+    };
+
+    /*
+        Fin Codigo para mostrar el datetimepicker
+        */
 
     const USER_API = 'services/public/clientes.php';
 
-    const fetchProfileData = async () => {
+    const UpdateProfile = async () => {
         try {
-            const data = await fetchData(USER_API, 'readProfile');
-            console.log('Profile data:', data); // Verifica los datos recibidos
 
-            if (data.status === 1 && data.dataset) {
-                setProfile(data.dataset);
+            // Si todos los campos son válidos, proceder con la creación del usuario
+            //Creamos el forms que mandara los datos a la api
+            const form = new FormData();
+            form.append('nombreCliente', name);
+            form.append('apellidoCliente', lastName);
+            form.append('correoCliente', email);
+            form.append('direccionCliente', direction);
+            form.append('duiCliente', dui);
+            form.append('nacimientoCliente', birthdate);
+            form.append('telefonoCliente', phone);
+
+
+            const data = await fetchData(USER_API, 'editProfilePhone', form);
+            
+            if(data.status){
+                console.log('Tu cuenta se ha actualizado exitosamente');
+                goToProfile();
             } else {
-                console.log('No se encontraron datos del perfil');
+                console.log('Sorry');
             }
         } catch (error) {
-            console.error('Error al obtener los datos del perfil:', error);
+            console.log(error);
+            
         }
-    };
-
-    useFocusEffect(
-        React.useCallback(() => {
-            fetchProfileData();
-        }, [])
-    );
-
-    const navigation = useNavigation();
-    const route = useRoute();
-    const { updated } = route.params || {};
+    }
 
     useEffect(() => {
-        if (updated) {
-            fetchProfileData();
-        }
-    }, [updated]);
+        const fetchProfileData = async () => {
+            try {
+                const data = await fetchData(USER_API, 'readProfile');
+                if (data.status === 1 && data.dataset) {
+                    const profileData = data.dataset;
+                    setName(profileData.nombre_cliente);
+                    setLastName(profileData.apellido_cliente);
+                    setDUI(profileData.dui_cliente);
+                    setEmail(profileData.correo_cliente);
+                    setPhone(profileData.telefono_cliente);
+                    setBirthdate(profileData.nacimiento_cliente);
+                    setDirection(profileData.direccion_cliente);
+                    setProfile(profileData);
+                } else {
+                    console.log('No se encontraron datos del perfil');
+                }
+            } catch (error) {
+                console.error('Error al obtener los datos del perfil:', error);
+            }
+        };
+    
+        fetchProfileData();
+    }, []);
 
-    const goToEditar = () => {
+    const navigation = useNavigation();
 
-        navigation.navigate('StackNavigator', {
-            screen: 'EditProfileScreen'
-        });
-    }
+    const goToProfile = () => {
+        navigation.navigate('Profile', { updated: true });
+    };
 
     Fonts();
 
@@ -70,7 +130,7 @@ const ProfileScreen = () => {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <IconButton icon="history" size={35} onPress={goToEditar}/>
+                    <IconButton icon="pencil" size={35} onPress={goToProfile}/>
                 </View>
                 <View style={styles.col}>
                     <Image style={styles.img} source={{uri:`${SERVER_URL}images/clientes/${profile.imagen_cliente}`}}/>
@@ -84,8 +144,8 @@ const ProfileScreen = () => {
                                 outlineColor='#EDEDED'
                                 style={styles.textInput}
                                 left={<TextInput.Icon icon="account" />}
-                                value={profile.nombre_cliente}
-                                editable={false} // Solo lectura
+                                value={name}
+                                onChangeText={setName}
                             />
                         </View>
                         <View style={styles.input}>
@@ -97,8 +157,8 @@ const ProfileScreen = () => {
                                 outlineColor='#EDEDED'
                                 style={styles.textInput}
                                 left={<TextInput.Icon icon="account-plus" />}
-                                value={profile.apellido_cliente}
-                                editable={false} // Solo lectura
+                                value={lastName}
+                                onChangeText={setLastName}
                             />
                         </View>
                         <View style={styles.input}>
@@ -117,8 +177,8 @@ const ProfileScreen = () => {
                                         options={{
                                             mask: '99999999-9'
                                         }}
-                                        value={profile.dui_cliente}
-                                        editable={false} // Solo lectura
+                                        value={dui}
+                                        onChangeText={setDUI}
                                     />
                                 )}
                             />
@@ -132,7 +192,8 @@ const ProfileScreen = () => {
                                 outlineColor='#EDEDED'
                                 style={styles.textInput}
                                 left={<TextInput.Icon icon="email" />}
-                                value={profile.correo_cliente}
+                                value={email}
+                                onChangeText={setEmail}
                                 editable={false} // Solo lectura
                             />
                         </View>
@@ -153,24 +214,39 @@ const ProfileScreen = () => {
                                         options={{
                                             mask: '9999-9999'
                                         }}
-                                        value={profile.telefono_cliente}
-                                        editable={false} // Solo lectura
+                                        value={phone}
+                                        onChangeText={setPhone}
                                     />
                                 )}
                             />
                         </View>
                         <View style={styles.input}>
                             <Text style={styles.inputText}>Fecha de nacimiento</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                textContentType='birthday'
-                                mode='outlined'
-                                outlineColor='#EDEDED'
-                                style={[styles.textInput, { flex: 1 }]}
-                                left={<TextInput.Icon icon="calendar-month" />}
-                                value={profile.nacimiento_cliente}
-                                editable={false} // Solo lectura
-                            />
+                            <TouchableOpacity onPress={showDatepicker} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <TextInput
+                                    activeOutlineColor='#c5c4c2'
+                                    textContentType='birthday'
+                                    mode='outlined'
+                                    outlineColor='#fff'
+                                    style={[styles.textInput, { flex: 1 }]} // Asegúrate de que el TextInput ocupe todo el espacio
+                                    //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
+                                    left={<TextInput.Icon icon="calendar-month" />}
+                                    value={birthdate}
+                                    onChangeText={setBirthdate}
+                                    editable={false} // Deshabilita la edición directa del TextInput
+                                />
+                            </TouchableOpacity>
+                            {show && (
+                                <DateTimePicker
+                                    testID="dateTimePicker"
+                                    value={date}
+                                    mode="date"
+                                    is24Hour={true}
+                                    minimumDate={new Date(new Date().getFullYear() - 100, new Date().getMonth(), new Date().getDate())} // Fecha mínima permitida (100 años atrás desde la fecha actual)
+                                    maximumDate={new Date()} // Fecha máxima permitida (fecha actual)
+                                    onChange={onChange}
+                                />
+                            )}
                         </View>
                         <View style={styles.input}>
                             <Text style={styles.inputText}>Dirección</Text>
@@ -181,13 +257,12 @@ const ProfileScreen = () => {
                                 outlineColor='#EDEDED'
                                 style={styles.textInput}
                                 left={<TextInput.Icon icon="compass-outline" />}
-                                value={profile.direccion_cliente}
-                                editable={false} // Solo lectura
+                                value={direction}
+                                onChangeText={setDirection}
                             />
                         </View>
                         <View style={styles.buttonContainer}>
-                            <CustomButton title='Editar' colorText='white' buttonColor='#EE964B' fontSize={16} buttonMargin={10} onPress={goToEditar}/>
-                            <CustomButton title='Actualizar contraseña' colorText='white' buttonColor='#F95738' fontSize={16} onPress={goToEditar}/>
+                            <CustomButton title='Actualizar datos' colorText='white' buttonColor='#EE964B' fontSize={16} onPress={UpdateProfile}/>
                         </View>
                         <View style={styles.input}></View>
                     </View>
@@ -233,12 +308,13 @@ const styles = StyleSheet.create({
     textInput: {
         elevation: 5,
         borderRadius: 10,
-        backgroundColor:'#EDEDED'
+        backgroundColor:'#FDFDFD'
     },
     buttonContainer: {
         flexDirection: 'row',
+        justifyContent: 'flex-end',
         marginTop: 20,
     },
 });
 
-export default ProfileScreen;
+export default EditProfileScreen;
