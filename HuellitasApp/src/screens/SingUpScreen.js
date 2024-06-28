@@ -17,7 +17,7 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 
-const SingUpScreen = ({ logueado, setLogueado}) => {
+const SingUpScreen = () => {
     const [date, setDate] = useState(new Date());
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
@@ -87,11 +87,11 @@ const SingUpScreen = ({ logueado, setLogueado}) => {
             form.append('claveCliente', pass);
             form.append('confirmarClave', passCheck);
 
-            const data = await fetchData(USER_API, 'signUp', form);
+            const data = await fetchData(USER_API, 'signUpPhone', form);
             
             if(data.status){
                 console.log('Tu cuenta se ha creado exitosamente');
-                setLogueado(true);
+                goToLogin();
             } else {
                 console.log('Sorry');
             }
