@@ -76,7 +76,8 @@ const TabBar = ({logueado, setLogueado, name, picture}) =>  {
                 <Tab.Screen
                     name='Profile'
                     options={{
-                        title: firstName,
+                        title: 'Mi perfil',
+                        tabBarLabel: firstName,
                         tabBarIcon: () => (
                             <Image style={{width: 30, height: 30, borderRadius: 100/2}} source={{uri:`${SERVER_URL}images/clientes/${picture}`}}/>
                         )
