@@ -61,11 +61,17 @@ const ProfileScreen = () => {
         });
     };
 
+    const goToHistorial = () => {
+        navigation.navigate('StackNavigator', {
+            screen: 'History'
+        });
+    };
+
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <IconButton icon="history" size={35} onPress={goToEditar} />
+                    <IconButton icon="history" size={35} onPress={goToHistorial} />
                 </View>
                 <View style={styles.col}>
                     <Image style={styles.img} source={{ uri: `${SERVER_URL}images/clientes/${profile.imagen_cliente}` }} />

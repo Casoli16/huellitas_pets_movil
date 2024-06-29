@@ -4,6 +4,7 @@ import LoginScreen from "../screens/LoginScreen";
 import SingUpScreen from "../screens/SingUpScreen";
 import ProductsDetails from "../screens/ProductsDetails";
 import EditProfileScreen from "../screens/EditProfileScreen";
+import History from "../screens/History";
 import {StyleSheet} from "react-native";
 
 const Stack = createNativeStackNavigator();
@@ -56,6 +57,14 @@ const StackNavigator = ({logueado, setLogueado}) => {
                     component={EditProfileScreen}
                     options={{
                         title: 'Editar perfil',
+                        headerShown: true
+                    }}
+                />
+                <Stack.Screen
+                    name='History'
+                    component={History}
+                    options={{
+                        title: 'Historial',
                         headerShown: true
                     }}
                 />
