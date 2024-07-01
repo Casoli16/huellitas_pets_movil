@@ -1,11 +1,56 @@
-import React from 'react';
-import { View, Text, Modal, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { useRoute } from "@react-navigation/native";
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native';
+import fetchData from '../../api/components';
+import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 
 const OrderDetailsModal = ({ visible, onClose, order }) => {
-    if (!order) {
-        return null;
-    }
+    const [items, setItems] = useState([]);
+    const [error, setError] = useState(null);
+    const USER_API = 'services/public/clientes.php';
+
+    useEffect(() => {
+        if (visible) {
+            loadProducts();
+        }
+    }, [visible]);
+
+    const loadProducts = async () => {
+        try {
+            console.log('ID del pedido:', order.id_pedido); // Imprime el ID del pedido en la consola
+
+            const form = new FormData();
+            form.append('id_pedido', order.id_pedido);
+
+            const response = await fetchData(USER_API, 'readTwo', form);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText);
+            }
+
+            const data = await response.json();
+            console.log(data, 'valor data');
+            if (data.status) {
+                setItems(data.items); // Asume que la respuesta contiene una propiedad "items"
+            } else {
+                console.log('No se pudieron cargar los productos.');
+            }
+        } catch (error) {
+            console.log('Fetch error:', error);
+            setError(error.message);
+        }
+    };
+
+    const renderItem = ({ item }) => (
+        <View style={styles.itemCard}>
+            <Image source={{ uri: item.image }} style={styles.itemImage} />
+            <View style={styles.itemDetails}>
+                <Text style={styles.itemTitle}>{item.name}</Text>
+                <Text style={styles.itemSubtitle}>{item.description}</Text>
+            </View>
+            <Text style={styles.itemPrice}>${item.price ? item.price : 'N/A'}</Text>
+        </View>
+    );
 
     return (
         <Modal
@@ -18,35 +63,33 @@ const OrderDetailsModal = ({ visible, onClose, order }) => {
                     <View style={styles.header}>
                         <Text style={styles.headerText}>Información del pedido</Text>
                     </View>
-                    <View style={styles.content}>
-                        {order.items && order.items.map((item, index) => (
-                            <View key={index} style={styles.itemCard}>
-                                <Image source={{ uri: item.image }} style={styles.itemImage} />
-                                <View style={styles.itemDetails}>
-                                    <Text style={styles.itemTitle}>{item.name}</Text>
-                                    <Text style={styles.itemSubtitle}>{item.description}</Text>
-                                </View>
-                                <Text style={styles.itemPrice}>${item.price}</Text>
-                            </View>
-                        ))}
-                        <View style={styles.orderDetails}>
-                            <View style={styles.orderDetailRow}>
-                                <Text style={styles.orderDetailLabel}>Nombre:</Text>
-                                <Text style={styles.orderDetailValue}>{order.cliente}</Text>
-                            </View>
-                            <View style={styles.orderDetailRow}>
-                                <Text style={styles.orderDetailLabel}>Dirección:</Text>
-                                <Text style={styles.orderDetailValue}>{order.address}</Text>
-                            </View>
-                            <View style={styles.orderDetailRow}>
-                                <Text style={styles.orderDetailLabel}>Estado:</Text>
-                                <Text style={styles.orderDetailValue}>{order.estado_pedido}</Text>
-                            </View>
-                            <View style={styles.orderDetailRow}>
-                                <Text style={styles.orderDetailLabel}>Total a pagar:</Text>
-                                <Text style={styles.orderDetailValue}>${order.total}</Text>
-                                <Text>idPedido: {order.id_pedido}</Text>
-                            </View>
+                    {error && (
+                        <View style={styles.errorContainer}>
+                            <Text style={styles.errorText}>Error: {error}</Text>
+                        </View>
+                    )}
+                    <FlatList
+                        data={items}
+                        renderItem={renderItem}
+                        keyExtractor={(item, index) => index.toString()}
+                        contentContainerStyle={styles.listContainer}
+                    />
+                    <View style={styles.orderDetails}>
+                        <View style={styles.orderDetailRow}>
+                            <Text style={styles.orderDetailLabel}>Nombre:</Text>
+                            <Text style={styles.orderDetailValue}>{order.cliente}</Text>
+                        </View>
+                        <View style={styles.orderDetailRow}>
+                            <Text style={styles.orderDetailLabel}>Dirección:</Text>
+                            <Text style={styles.orderDetailValue}>{order.address}</Text>
+                        </View>
+                        <View style={styles.orderDetailRow}>
+                            <Text style={styles.orderDetailLabel}>Estado:</Text>
+                            <Text style={styles.orderDetailValue}>{order.estado_pedido}</Text>
+                        </View>
+                        <View style={styles.orderDetailRow}>
+                            <Text style={styles.orderDetailLabel}>Total a pagar:</Text>
+                            <Text style={styles.orderDetailValue}>${order.precio_total}</Text>
                         </View>
                     </View>
                     <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -66,7 +109,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.5)',
     },
     modalContainer: {
-        width: '80%',
+        width: '90%',
         backgroundColor: 'white',
         borderRadius: 10,
         overflow: 'hidden',
@@ -81,7 +124,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    content: {
+    listContainer: {
         padding: 20,
     },
     itemCard: {
@@ -112,9 +155,10 @@ const styles = StyleSheet.create({
     itemPrice: {
         fontSize: 16,
         fontWeight: 'bold',
+        color: '#000',
     },
     orderDetails: {
-        marginTop: 20,
+        padding: 20,
     },
     orderDetailRow: {
         flexDirection: 'row',
@@ -137,6 +181,16 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    errorContainer: {
+        padding: 10,
+        backgroundColor: '#f8d7da',
+        borderRadius: 8,
+        marginBottom: 10,
+    },
+    errorText: {
+        color: '#721c24',
+        fontSize: 14,
     },
 });
 
