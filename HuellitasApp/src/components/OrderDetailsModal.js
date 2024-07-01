@@ -2,36 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native';
 import fetchData from '../../api/components';
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
+import { SERVER_URL } from "../../api/components";
 
 const OrderDetailsModal = ({ visible, onClose, order }) => {
     const [items, setItems] = useState([]);
+    const [profile, setProfile] = useState(null);
     const [error, setError] = useState(null);
     const USER_API = 'services/public/clientes.php';
 
     useEffect(() => {
         if (visible) {
             loadProducts();
+            loadProfile();
         }
     }, [visible]);
 
     const loadProducts = async () => {
         try {
-            console.log('ID del pedido:', order.id_pedido); // Imprime el ID del pedido en la consola
-
             const form = new FormData();
             form.append('id_pedido', order.id_pedido);
 
-            const response = await fetchData(USER_API, 'readTwo', form);
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText);
-            }
+            const data = await fetchData(USER_API, 'readOne', form);
 
-            const data = await response.json();
             console.log(data, 'valor data');
             if (data.status) {
-                setItems(data.items); // Asume que la respuesta contiene una propiedad "items"
+                setItems(data.dataset); // Asume que la respuesta contiene una propiedad "dataset"
             } else {
                 console.log('No se pudieron cargar los productos.');
             }
@@ -41,14 +36,33 @@ const OrderDetailsModal = ({ visible, onClose, order }) => {
         }
     };
 
+    const loadProfile = async () => {
+        try {
+            const form = new FormData();
+            form.append('id_pedido', order.id_pedido);
+
+            const data = await fetchData(USER_API, 'readTwo', form);
+
+            console.log(data, 'valor data');
+            if (data.status) {
+                setProfile(data.dataset[0]); // Asume que la respuesta contiene una propiedad "dataset" con el primer objeto como perfil
+            } else {
+                console.log('No se pudo cargar el perfil del cliente.');
+            }
+        } catch (error) {
+            console.log('Fetch error:', error);
+            setError(error.message);
+        }
+    };
+
     const renderItem = ({ item }) => (
         <View style={styles.itemCard}>
-            <Image source={{ uri: item.image }} style={styles.itemImage} />
+            <Image source={{ uri: `${SERVER_URL}images/productos/${item.imagen_producto}` }} style={styles.itemImage} />
             <View style={styles.itemDetails}>
-                <Text style={styles.itemTitle}>{item.name}</Text>
-                <Text style={styles.itemSubtitle}>{item.description}</Text>
+                <Text style={styles.itemTitle}>{item.nombre_producto}</Text>
+                <Text style={styles.itemSubtitle}>{item.nombre_marca}</Text>
             </View>
-            <Text style={styles.itemPrice}>${item.price ? item.price : 'N/A'}</Text>
+            <Text style={styles.itemPrice}>{item.precio}</Text>
         </View>
     );
 
@@ -63,35 +77,32 @@ const OrderDetailsModal = ({ visible, onClose, order }) => {
                     <View style={styles.header}>
                         <Text style={styles.headerText}>Información del pedido</Text>
                     </View>
-                    {error && (
-                        <View style={styles.errorContainer}>
-                            <Text style={styles.errorText}>Error: {error}</Text>
-                        </View>
-                    )}
                     <FlatList
                         data={items}
                         renderItem={renderItem}
                         keyExtractor={(item, index) => index.toString()}
                         contentContainerStyle={styles.listContainer}
                     />
-                    <View style={styles.orderDetails}>
-                        <View style={styles.orderDetailRow}>
-                            <Text style={styles.orderDetailLabel}>Nombre:</Text>
-                            <Text style={styles.orderDetailValue}>{order.cliente}</Text>
+                    {profile && (
+                        <View style={styles.orderDetails}>
+                            <View style={styles.orderDetailRow}>
+                                <Text style={styles.orderDetailLabel}>Nombre:</Text>
+                                <Text style={styles.orderDetailValue}>{profile.nombre_cliente}</Text>
+                            </View>
+                            <View style={styles.orderDetailRow}>
+                                <Text style={styles.orderDetailLabel}>Dirección:</Text>
+                                <Text style={styles.orderDetailValue}>{profile.direccion}</Text>
+                            </View>
+                            <View style={styles.orderDetailRow}>
+                                <Text style={styles.orderDetailLabel}>Estado:</Text>
+                                <Text style={styles.orderDetailValue}>{profile.estado}</Text>
+                            </View>
+                            <View style={styles.orderDetailRow}>
+                                <Text style={styles.orderDetailLabel}>Total a pagar:</Text>
+                                <Text style={styles.orderDetailValue}>{profile.precio_total}</Text>
+                            </View>
                         </View>
-                        <View style={styles.orderDetailRow}>
-                            <Text style={styles.orderDetailLabel}>Dirección:</Text>
-                            <Text style={styles.orderDetailValue}>{order.address}</Text>
-                        </View>
-                        <View style={styles.orderDetailRow}>
-                            <Text style={styles.orderDetailLabel}>Estado:</Text>
-                            <Text style={styles.orderDetailValue}>{order.estado_pedido}</Text>
-                        </View>
-                        <View style={styles.orderDetailRow}>
-                            <Text style={styles.orderDetailLabel}>Total a pagar:</Text>
-                            <Text style={styles.orderDetailValue}>${order.precio_total}</Text>
-                        </View>
-                    </View>
+                    )}
                     <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                         <Text style={styles.closeButtonText}>Salir</Text>
                     </TouchableOpacity>

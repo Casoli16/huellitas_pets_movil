@@ -1,5 +1,5 @@
 // Variable que guarda la ip para importarla en la ruta general del servidor
-let ip = `192.168.1.9`;
+let ip = `192.168.137.1`;
 
 // URL base del servidor
 export const SERVER_URL = `http://${ip}/Huellitas_pets/system_huellitas/api/`;
