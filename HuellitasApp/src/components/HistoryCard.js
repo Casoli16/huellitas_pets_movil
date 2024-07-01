@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, FlatList } from 'react-native';
+import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native';
 import icon from '../../assets/historialCompra.png'; // Asegúrate de usar la ruta correcta
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import fetchData from '../../api/components';
+import OrderDetailsModal from '../components/OrderDetailsModal';
 
 const HistoryCard = () => {
     const [history, setHistory] = useState([]);
+    const [showOrderModal, setShowOrderModal] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
     const fetchProfileData = async () => {
         const USER_API = 'services/public/clientes.php';
@@ -39,27 +42,41 @@ const HistoryCard = () => {
         }
     }, [updated]);
 
+    const handleCardPress = (order) => {
+        if (order) {
+            setSelectedOrder(order);
+            setShowOrderModal(true);
+        }
+    };
+
     return (
         <View style={styles.container}>
             <FlatList
                 data={history}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
-                    <View style={styles.section}>
-                        <Text style={styles.date}>{item.fecha}</Text>
-                        <View style={styles.card}>
-                            <Image source={icon} style={styles.icon} />
-                            <View style={styles.details}>
-                                <Text style={styles.title}>{item.estado_pedido}</Text>
-                                <Text style={styles.subtext}>
-                                    Cantidad: {item.cantidad} Unidades
-                                </Text>
+                    <TouchableOpacity onPress={() => handleCardPress(item)}>
+                        <View style={styles.section}>
+                            <Text style={styles.date}>{item.fecha}</Text>
+                            <View style={styles.card}>
+                                <Image source={icon} style={styles.icon} />
+                                <View style={styles.details}>
+                                    <Text style={styles.title}>Estado: {item.estado_pedido}</Text>
+                                    <Text style={styles.subtext}>
+                                        Cantidad: {item.cantidad} Unidades
+                                    </Text>
+                                </View>
+                                <Text style={styles.price}>${item.precio_total}</Text>
                             </View>
-                            <Text style={styles.price}>${item.precio_total}</Text>
+                            <View style={styles.separator} />
                         </View>
-                        <View style={styles.separator} />
-                    </View>
+                    </TouchableOpacity>
                 )}
+            />
+            <OrderDetailsModal 
+                visible={showOrderModal} 
+                onClose={() => setShowOrderModal(false)} 
+                order={selectedOrder} 
             />
         </View>
     );
