@@ -10,9 +10,10 @@ import {useNavigation} from "@react-navigation/native";
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
-const ProductsCards =  ({pet, search}) => {
+const ProductsCards =  ({pet, search, category}) => {
     Fonts();
 
+    console.log(pet, category)
     //Arreglo que guardara la data traida de nuestra api
     const [products, setProducts] = useState([]);
     const API = 'services/public/productos.php';
@@ -34,12 +35,17 @@ const ProductsCards =  ({pet, search}) => {
     const fillCards = async ()=> {
         let action;
         let FORM = new FormData();
+        console.log(category)
 
         //Verifica si viene search, de ser asi, entonces enviara en el form lo que venga, pero si en cambio viene pet entonces
         //se trae todos los productos filtrados por su mascota, pero si no viene nada entonces cae en else y trae todos los productos
         if(search){
             FORM.append('search', search);
             action = 'searchProducts';
+        }else if (pet && category) {
+            FORM.append('mascota', pet);
+            FORM.append('condition', category);
+            action = 'readProductsByCategoria';
         } else if(pet){
             FORM.append('mascota', pet);
             action = 'readSpecificProduct';
@@ -63,7 +69,7 @@ const ProductsCards =  ({pet, search}) => {
     //cuando los valores de pet y search cambien.
     useEffect(()=>{
         fillCards();
-    },[pet, search])
+    },[pet, search, category])
 
     return(
         <View style={styles.container}>

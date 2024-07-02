@@ -1,10 +1,10 @@
 import {useEffect, useState, useRef} from "react";
 import Fonts from "../../fonts/fonts";
-import {ImageBackground, ScrollView, StyleSheet, Text, View} from "react-native";
+import {ImageBackground, ScrollView, StyleSheet, Text, View, Image, TouchableOpacity} from "react-native";
 import {Chip, Searchbar} from "react-native-paper";
 import ProductsCards from "../components/ShopComponents/ProductsCards";
 import {useNavigation, useRoute} from "@react-navigation/native";
-
+import fetchData, {SERVER_URL}  from "../../api/components";
 
 const ShopScreen = ()=>{
 
@@ -14,6 +14,12 @@ const ShopScreen = ()=>{
     //Recibimos los parametros que vienen de homeScreen
     const route = useRoute();
     const { pet } = route.params || '';
+    const API = 'services/public/productos.php';
+
+    const [category, setCategory] =  useState('');
+    const [categoriesData, setCategoriesData] = useState([]);
+    //Para manejar el search input
+    const [search, setSearch] = useState('');
 
     Fonts();
 
@@ -22,30 +28,39 @@ const ShopScreen = ()=>{
     //Manejo para el estilo de los botones.
     const [activeChip, setActiveChip] = useState('');
 
+
     useEffect(() => {
         // Revisa si viene pet, de ser asi entonces se van a mostrar los productos dependiendo de la mascota que venga.
         if (pet) {
             setActiveSection(pet);
             setActiveChip(pet);
-        // Si no viene nada entonces se van a cargar los productos para perros.
+            // Si no viene nada entonces se van a cargar los productos para perros.
         } else {
-            setActiveSection('Perros');
-            setActiveChip('Perros');
+            setActiveSection("Perros");
+            setActiveChip("Perros");
         }
+    }, [pet]);
+
+    useEffect(() => {
+        if (activeSection) {
+            fillCategories();
+        }
+    }, [activeSection]);
+
+    useEffect(() => {
 
         //MANEJO DE SCROLL (Para que cuando se vuelva a ver la pantalla, vuelva al inicio)
         //Funcion que manda al scroll a su posicion inicial
         const scrollToTop = () => {
-            scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
-        }
+            if (scrollViewRef.current) {
+                scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
+            }
+        };
 
         //Evento que se activa cuando se abre la pantalla de HomeScreen(Esta pantalla)
-        navigation.addListener('focus', scrollToTop);
+        navigation.addListener("focus", scrollToTop);
+    }, [navigation]); // Le pasamos la navegacion para que pueda identificar los cambios de pantalla
 
-    }, [pet, navigation]); // Le pasamos la navegacion para que pueda identificar los cambios de pantalla
-
-    //Para manejar el search input
-    const [search, setSearch] = useState('');
 
     //Funcion que permite el cambio de pantallas, recibe un parametro (opciones de los botones (informacion, rendimiento o asistencias))
     const changeScreen = (section) => {
@@ -53,6 +68,10 @@ const ShopScreen = ()=>{
         setActiveSection(section);
         //Manejo para el estilo de los chips
         setActiveChip(section);
+    };
+
+    const changeCategory = (category) => {
+        setCategory(category);
     };
 
     //Variable que guardara el contenido que se mostrara en la pantalla
@@ -66,17 +85,34 @@ const ShopScreen = ()=>{
         //Dependiendo de la opcion seleccionada asi se cambiara el fondo y titulo de la pantalla, ademas
         //enviara los parametros solicitados como la mascota y search
         case 'Perros':
-            contentComponent = <ProductsCards pet={'Perro'} search={search}/>;
+            contentComponent = <ProductsCards pet={'Perro'} search={search} category={category}/>;
             image = require('../../assets/shopImages/dogs.jpg');
             title = 'Perros';
             break;
         case 'Gatos':
-            contentComponent = <ProductsCards pet={'Gato'} search={search}/>;
+            contentComponent = <ProductsCards pet={'Gato'} search={search} category={category}/>;
             image = require('../../assets/shopImages/cats.jpg');
             title = 'Gatos';
             break;
         default:
             contentComponent = null;
+    }
+
+
+    //Funcion que permite mostrar las categorias.
+    const fillCategories = async ()=> {
+        let FORM = new FormData();
+        FORM.append('mascota', activeSection)
+
+        const DATA = await fetchData(API, 'readCategorias', FORM);
+
+        if(DATA.status){
+            let data = DATA.dataset;
+            //Se guarda la data de la api en la variable products.
+            setCategoriesData(data);
+        } else{
+            console.log(DATA.error)
+        }
     }
 
     return(
@@ -97,6 +133,23 @@ const ShopScreen = ()=>{
                         onPress={() => changeScreen('Gatos')}
                         textStyle={{color: activeChip === 'Gatos' ? 'white' : '#000000'}}>Gatos
                     </Chip>
+                </View>
+
+                <View style={styles.boxText}>
+                    <Image style={{width: 30, height: 30}} source={require('../../assets/shopImages/salud.png')}/>
+                    <Text style={styles.titleCategory}>Elige la categoría</Text>
+                </View>
+                <View style={styles.boxHorizontal}>
+                    <ScrollView horizontal={true}>
+                        <TouchableOpacity style={styles.boxCategory2} onPress={()=>{changeCategory('')}}>
+                            <Text style={styles.textCategory}>Todas</Text>
+                        </TouchableOpacity>
+                        {categoriesData.map((categoriesData, index) => (
+                            <TouchableOpacity key={index} style={styles.boxCategory} onPress={()=>{changeCategory(categoriesData.idCategoria)}}>
+                                <Text style={styles.textCategory}>{categoriesData.categoria}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView>
                 </View>
 
                 <View style={styles.inputSearch}>
@@ -139,6 +192,47 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         marginVertical: 5,
     },
+    img: {
+        width: 40,
+        height: 40
+    },
+    boxCategory: {
+        backgroundColor: '#f4d13f',
+        padding: 12,
+        borderRadius: 10,
+        flexDirection: "column",
+        alignItems: "center",
+        marginHorizontal: 8
+    },
+    boxCategory2: {
+        backgroundColor: '#EE964B',
+        padding: 12,
+        borderRadius: 10,
+        flexDirection: "column",
+        alignItems: "center",
+        marginHorizontal: 8
+    },
+    textCategory: {
+        color: 'white',
+        fontFamily: 'Jost_600SemiBold',
+    },
+    boxHorizontal: {
+        marginTop: 10,
+        flexDirection: "column",
+        alignItems: "center",
+        marginBottom: 15,
+        marginHorizontal: 15
+    },
+    titleCategory: {
+        fontFamily: 'Jost_600SemiBold',
+        marginHorizontal: 10
+    },
+    boxText: {
+        marginHorizontal: 20,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start"
+    }
 
 });
 
