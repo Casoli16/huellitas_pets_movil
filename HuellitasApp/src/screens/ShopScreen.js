@@ -41,11 +41,12 @@ const ShopScreen = ()=>{
         }
     }, [pet]);
 
+    //Mostramos la categorias.
     useEffect(() => {
         if (activeSection) {
             fillCategories();
         }
-    }, [activeSection]);
+    }, [activeSection]); // Se manda la petición cada vez que se selecciona una mascota en específico
 
     useEffect(() => {
 
