@@ -110,9 +110,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#FAF0CA',
         height: 70,
         paddingBottom: 10,
-        paddingTop: 10,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20
+        paddingTop: 10
     },
     header:{
         backgroundColor: '#F4D35E',
