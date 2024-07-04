@@ -5,12 +5,14 @@ import CustomButton from "../components/CustomeButton";
 import fetchData, {SERVER_URL} from "../../api/components";
 import {useEffect, useRef, useState} from "react";
 import { Swipeable } from "react-native-gesture-handler";
+import {AlertNotificationRoot, Dialog} from "react-native-alert-notification";
+import {DialogNotification, ToastNotification} from "../components/Alerts/AlertComponent";
 
 // Obtiene el tamaño de la pantalla en la que este.
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
-const CartScreen = ({})=> {
+const CartScreen = ({ state})=> {
     Fonts();
 
     //Api
@@ -19,7 +21,8 @@ const CartScreen = ({})=> {
     const [products, setProducts] = useState([]);
     //Variable que guardara el precio total del pedido
     const [totaPrice, setTotalPrice] = useState(0.0);
-
+    //Variable donde se guardara la respuesta si vienen productos o no.
+    const [hasProducts, setHasProducts] = useState(true);
     //Variable que guarda el producto de la cantidad del producto por su precio.
     let subtotal;
 
@@ -30,15 +33,26 @@ const CartScreen = ({})=> {
         if(DATA.status){
             let data = DATA.dataset;
             setProducts(data);
+            setHasProducts(true);
         }else{
-            console.log('Ocurrió un problema')
+            Dialog.hide();
+            setProducts([]);
+            setHasProducts(false);
+            ToastNotification(3, 'Aún no hay productos agregados a tu carrito')
         }
     }
+
+    if(state){
+        fillCards();
+    }else{
+        console.log('No vienen productos');
+    }
+
 
     //Cargamos nuestros productos del carrito
     useEffect( () => {
         fillCards();
-    }, []);
+    }, [state]);
 
     //Carga el precio total del pedido calculado y cambia cada que products cambie.
     useEffect( () => {
@@ -51,18 +65,18 @@ const CartScreen = ({})=> {
 
     //Funcion para actualizar la cantidad de un producto.
     const updateProduct = async (idDetallePedido, cantidadProducto) => {
-            const FORM = new FormData();
-            FORM.append('idDetalle', idDetallePedido)
-            FORM.append('cantidadProducto', cantidadProducto)
+        const FORM = new FormData();
+        FORM.append('idDetalle', idDetallePedido)
+        FORM.append('cantidadProducto', cantidadProducto)
 
-            const DATA = await fetchData(API, 'updateDetail', FORM);
+        const DATA = await fetchData(API, 'updateDetail', FORM);
 
-            if(DATA.status){
-                fillCards();
-            }else{
-                console.log('Ha ocurrido un error')
-            }
-}
+        if(DATA.status){
+            fillCards();
+        }else{
+            console.log('Ha ocurrido un error')
+        }
+    }
 
 //Funciones para manejar el aumento y reducción de cantidad en los productos.
     const handleIncrease = async (index) => {
@@ -89,77 +103,92 @@ const CartScreen = ({})=> {
         await updateProduct(id_detalle_pedido, cantidad_detalle_pedido)
     }
 
+    const deleteMessage = async (id) => {
+        DialogNotification(3, '¿Estás seguro que quieres eliminar este producto de tu carrito de compras?','Sí', ()=>{deleteProduct(id)});
+    }
+
     //Funcion para eliminar un producto del carrito
     const deleteProduct = async (id)=>{
+
         const FORM = new  FormData();
         FORM.append('idDetalle', id);
 
         const DATA = await fetchData(API,'deleteDetail', FORM);
         if(DATA.status){
             await fillCards();
+            Dialog.hide();
+            ToastNotification(1, 'Producto eliminado correctamente de tu carrito', true)
         } else{
-            console.log('Ocurrión un error al eliminar este producto')
+            console.log('Ocurrió un error al eliminar este producto')
         }
     }
 
     return(
-        <View style={styles.container}>
-            <ScrollView style={{height: windowHeight * 0.5}}>
-                {products.map((product, index) => {
-                    const { id_detalle_pedido, nombre_producto, nombre_marca, imagen_producto, precio_detalle_pedido, cantidad_detalle_pedido } = product;
-                    const productImageUrl = `${SERVER_URL}images/productos/${imagen_producto}`;
-                    subtotal = cantidad_detalle_pedido * precio_detalle_pedido
-                    return (
-                        //Cuando se deslice un producto a lado izquierdo se va mostrar un boton para eliminar
-                        <Swipeable key={id_detalle_pedido} renderRightActions={() => (
-                            <TouchableOpacity style={styles.deleteButton} onPress={() => deleteProduct(id_detalle_pedido)}>
-                                <Icon source="delete" size={25} color="white" />
-                            </TouchableOpacity>
-                        )}>
-                        <View style={styles.card}>
-                            <View style={styles.row}>
-                                <View style={styles.imgContainer}>
-                                    <Image source={{uri: productImageUrl}} style={{width: 60, height: 60}}/>
-                                </View>
-                                <View style={styles.infoProductBox}>
-                                    <Text style={styles.product}>{nombre_producto}</Text>
-                                    <Text style={styles.marca}>{nombre_marca}</Text>
-                                    <Text style={styles.price}>${subtotal.toFixed(2)}</Text>
-                                </View>
-                                <View style={styles.close}>
-                                    <View style={styles.colButtons}>
-                                        <TouchableOpacity style={styles.plus} onPress={()=>{handleIncrease(index)}}>
-                                            <Icon size={20} source={'plus'} color='white'/>
-                                        </TouchableOpacity>
-                                        <TextInput
-                                            style={styles.count}
-                                            textColor={'black'}
-                                            mode={"outlined"}
-                                            disabled={true}
-                                            value={cantidad_detalle_pedido.toString()}
-                                        />
-                                        <TouchableOpacity style={styles.minus} onPress={()=>{handleDecrease(index)}}>
-                                            <Icon size={20} source={'minus'} color='white'/>
-                                        </TouchableOpacity>
+        <AlertNotificationRoot>
+            <View style={styles.container}>
+                <Text onPress={fillCards}>Cargar</Text>
+                <ScrollView style={{height: windowHeight * 0.5}}>
+                    {hasProducts ? (
+                        products.map((product, index) => {
+                            const { id_detalle_pedido, nombre_producto, nombre_marca, imagen_producto, precio_detalle_pedido, cantidad_detalle_pedido } = product;
+                            const productImageUrl = `${SERVER_URL}images/productos/${imagen_producto}`;
+                            subtotal = cantidad_detalle_pedido * precio_detalle_pedido;
+                            return (
+                                <Swipeable key={id_detalle_pedido} renderRightActions={() => (
+                                    <TouchableOpacity style={styles.deleteButton} onPress={() => deleteMessage(id_detalle_pedido)}>
+                                        <Icon source="delete" size={25} color="white" />
+                                    </TouchableOpacity>
+                                )}>
+                                    <View style={styles.card}>
+                                        <View style={styles.row}>
+                                            <View style={styles.imgContainer}>
+                                                <Image source={{ uri: productImageUrl }} style={{ width: 60, height: 60 }} />
+                                            </View>
+                                            <View style={styles.infoProductBox}>
+                                                <Text style={styles.product}>{nombre_producto}</Text>
+                                                <Text style={styles.marca}>{nombre_marca}</Text>
+                                                <Text style={styles.price}>${subtotal.toFixed(2)}</Text>
+                                            </View>
+                                            <View style={styles.close}>
+                                                <View style={styles.colButtons}>
+                                                    <TouchableOpacity style={styles.plus} onPress={() => handleIncrease(index)}>
+                                                        <Icon size={20} source={'plus'} color='white' />
+                                                    </TouchableOpacity>
+                                                    <TextInput
+                                                        style={styles.count}
+                                                        textColor={'black'}
+                                                        mode={"outlined"}
+                                                        disabled={true}
+                                                        value={cantidad_detalle_pedido.toString()}
+                                                    />
+                                                    <TouchableOpacity style={styles.minus} onPress={() => handleDecrease(index)}>
+                                                        <Icon size={20} source={'minus'} color='white' />
+                                                    </TouchableOpacity>
+                                                </View>
+                                            </View>
+                                        </View>
+                                        <View style={styles.divisor}></View>
                                     </View>
-                                </View>
-                            </View>
-                            <View style={styles.divisor}></View>
+                                </Swipeable>
+                            );
+                        })
+                    ) : (
+                        <View style={styles.noProducts}>
+                            <Text style={styles.txtNoProducts}>No hay productos en tu carrito</Text>
                         </View>
-                        </Swipeable>
-                    );
-                })}
-            </ScrollView>
-            {/*Precio total*/}
-            <View style={styles.spacer}></View>
-            <View style={styles.totalBox}>
-                <View style={styles.rowTotal}>
-                    <Text style={styles.totalText}>Total:</Text>
-                    <Text style={styles.totalPrice}>${totaPrice}</Text>
+                    )}
+                </ScrollView>
+                {/*Precio total*/}
+                <View style={styles.spacer}></View>
+                <View style={styles.totalBox}>
+                    <View style={styles.rowTotal}>
+                        <Text style={styles.totalText}>Total:</Text>
+                        <Text style={styles.totalPrice}>${totaPrice}</Text>
+                    </View>
+                    <CustomButton title='Comprar' buttonColor='#EE964B' fontSize={18} colorText='white'/>
                 </View>
-                <CustomButton title='Comprar' buttonColor='#EE964B' fontSize={18} colorText='white'/>
             </View>
-        </View>
+        </AlertNotificationRoot>
     );
 }
 
@@ -186,8 +215,8 @@ const styles = StyleSheet.create({
         padding: 12
     },
     infoProductBox: {
-      width: 180,
-      marginStart: 5
+        width: 180,
+        marginStart: 5
     },
     product: {
         fontFamily: 'Jost_500Medium',
@@ -198,8 +227,8 @@ const styles = StyleSheet.create({
         color: '#F95738'
     },
     close:{
-      flexDirection: "column",
-      alignItems: "flex-end"
+        flexDirection: "column",
+        alignItems: "flex-end"
     },
     minus: {
         backgroundColor: '#EE964B',
@@ -257,7 +286,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Jost_600SemiBold'
     },
     marca:{
-      fontSize: 12,
+        fontSize: 12,
         color: '#787676',
         marginBottom: 8
     },
@@ -273,6 +302,17 @@ const styles = StyleSheet.create({
         width: 75,
         height: '90%',
     },
+    noProducts: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 50,
+    },
+    txtNoProducts: {
+        marginVertical: '40%',
+        fontFamily: 'Jost_600SemiBold',
+        fontSize: 20
+    }
 
 });
 
