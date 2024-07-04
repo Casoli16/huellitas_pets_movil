@@ -1,26 +1,356 @@
-import {View, StyleSheet, Text} from "react-native";
-import {useNavigation, useRoute} from "@react-navigation/native";
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Text, Image, ScrollView, Dimensions, TouchableOpacity, TextInput } from "react-native";
+import fetchData from '../../api/components';
+import { useRoute, useFocusEffect } from "@react-navigation/native";
+import { SERVER_URL } from "../../api/components";
+//Importamos la navegacion
+import {useNavigation} from "@react-navigation/native";
 
-const ProductsDetails = ()=> {
+const width = Dimensions.get("window").width;
 
-    //Recibimos los parametros que vienen de ProductsCards
+const ProductsDetails = () => {
+    const PRODUCTOS_API = 'services/public/productos.php';
+    const PEDIDOS_API = 'services/public/pedidos.php';
+    const navigation = useNavigation();
+
     const route = useRoute();
     const { idProducto } = route.params;
 
-    return(
-        <View style={styles.container}>
-            <Text>idProducto: {idProducto}</Text>
-        </View>
-    )
-}
+    const [data, setData] = useState(null);
+    const [quantity, setQuantity] = useState(1);
+    const [cupon, setCupon] = useState("");
+    const [idcupon, setIdCupon] = useState(0);
+    const [precioProducto, setPrecioProducto] = useState(0);
+    const [precioProductoColor, setPrecioProductoColor] = useState("#7C7979"); // Color inicial gris
+    const [precioProductoAntes, setPrecioProductoAntes] = useState(0);
+
+    const fetchProducto = async () => {
+        try {
+            const FORM = new FormData();
+            FORM.append('idProducto', idProducto);
+            const data1 = await fetchData(PRODUCTOS_API, 'readOneProduct', FORM);
+            if (data1.status === 1 && data1.dataset) {
+                setData(data1.dataset[0]);
+                setPrecioProducto(data1.dataset[0].precio_producto);
+                setPrecioProductoAntes(data1.dataset[0].precio_producto);
+                setPrecioProductoColor("#7C7979");
+            } else {
+                console.log('Cuando status es 0 ', data1);
+            }
+        } catch (error) {
+            console.error('Error al obtener los datos del producto:', error);
+        }
+    };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchProducto();
+        }, [])
+    );
+
+    const enviarCodigo = async () => {
+        try {
+            const form = new FormData();
+            form.append('cupon', cupon);
+
+            const data = await fetchData(PRODUCTOS_API, 'readCuponDisponible', form);
+            if (data.status === 1) {
+                setIdCupon(data.dataset.id_cupon);
+                setPrecioProducto(precioProductoAntes - (precioProductoAntes * data.dataset.porcentaje_cupon / 100));
+                setPrecioProductoColor("#00CC00"); // Cambia el color a verde cuando se aplica el cupón
+            } else if (data.status === 2) {
+                console.log('cupon ya utilizado');
+            } else if (data.status === 3) {
+                console.log('cupon vacio');
+            } else {
+                console.log('Sorry, cai en el else');
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const SendToCart = async () => {
+        try {
+            const form = new FormData();
+            form.append('idProducto', idProducto);
+            form.append('cantidadProducto', quantity);
+            form.append('idCupon', idcupon);
+
+            const data = await fetchData(PEDIDOS_API, 'createDetail', form);
+
+            if (data.status) {
+                console.log('Detalle de compra creado correctamente');
+                navigation.navigate('History');
+            } else {
+                console.log('Sorry');
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleIncrement = () => {
+        if (quantity < data.existencia_producto) {
+            setQuantity(quantity + 1);
+        }
+    };
+
+    const handleDecrement = () => {
+        if (quantity > 1) {
+            setQuantity(quantity - 1);
+        }
+    };
+
+    if (!data) {
+        return (
+            <View style={styles.container}>
+                <Text>Loading...</Text>
+            </View>
+        );
+    }
+
+    return (
+        <ScrollView contentContainerStyle={styles.container}>
+            <View style={styles.imageContainer}>
+                <Image
+                    style={styles.image}
+                    source={{ uri: `${SERVER_URL}images/productos/${data.imagen_producto}` }}
+                />
+            </View>
+            <Text style={styles.title}>{data.nombre_producto}</Text>
+            <Text style={styles.brand}>{data.nombre_marca}</Text>
+            <View style={styles.priceCategoryContainer}>
+                <Text style={[styles.price, { color: precioProductoColor }]}>${precioProducto}</Text>
+                <Text style={styles.category}>{data.nombre_categoria}</Text>
+            </View>
+            <Text style={styles.descriptionTittle}>Descripción</Text>
+            <Text style={styles.description}>{data.descripcion_producto}</Text>
+            <View style={styles.buttonContent}>
+                <View style={styles.quantityContainer}>
+                    <TouchableOpacity onPress={handleDecrement} style={styles.quantityButton}>
+                        <Text style={styles.quantityButtonText}>-</Text>
+                    </TouchableOpacity>
+                    <TextInput
+                        style={styles.quantityInput}
+                        value={String(quantity)}
+                        keyboardType="numeric"
+                        maxLength={String(data.existencia_producto).length}
+                        onChangeText={(text) => {
+                            const value = Math.max(1, Math.min(data.existencia_producto, parseInt(text) || 1));
+                            setQuantity(value);
+                        }}
+                    />
+                    <TouchableOpacity onPress={handleIncrement} style={styles.quantityButton}>
+                        <Text style={styles.quantityButtonText}>+</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity style={styles.button} onPress={SendToCart}>
+                    <View style={styles.buttonContent}>
+                        <Image style={styles.icon} source={require('../../assets/carrito.png')} />
+                        <Text style={styles.buttonText}>Añadir al carrito</Text>
+                    </View>
+                </TouchableOpacity>
+            </View>
+            <View style={styles.cuponContent}>
+                <Image style={styles.icon2} source={require('../../assets/img_cupon.png')} />
+                <View style={styles.align}>
+                    <Text style={styles.boldText}>¿Tienes un cupón de descuento?</Text>
+                    <Text style={styles.normalText}>Podrás añadirlo en la parte de abajo.</Text>
+                </View>
+            </View>
+            <View style={styles.inputContent}>
+                <TextInput
+                    style={styles.codigoInput}
+                    value={cupon}
+                    keyboardType="default"
+                    onChangeText={(text) => setCupon(text)}
+                />
+
+                <TouchableOpacity onPress={enviarCodigo}>
+                    <Image style={styles.icon2} source={require('../../assets/enviar_codigo.png')} />
+                </TouchableOpacity>
+            </View>
+        </ScrollView>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flexGrow: 1,
+        alignItems: "center",
+        padding: 10,
+        backgroundColor: "#fff"
+    },
+    imageContainer: {
+        width: width * 0.95,
+        height: width * 0.95,
+        backgroundColor: "#F5F5DC",
+        borderRadius: 20,
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        marginBottom: 10
+    },
+    image: {
+        width: "100%",
+        height: "100%",
+        resizeMode: "contain",
+        borderRadius: 20
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: "bold",
+        marginBottom: 10,
+        alignSelf: "flex-start"
+    },
+    brand: {
+        fontSize: 18,
+        color: "#888",
+        marginBottom: 10,
+        alignSelf: "flex-start"
+    },
+    priceCategoryContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "100%",
+        paddingHorizontal: 4,
+        marginBottom: 10
+    },
+    price: {
+        fontSize: 25,
+        fontWeight: "bold",
+        color: "#7C7979"
+    },
+    category: {
+        fontSize: 14,
+        fontWeight: "light",
+        backgroundColor: "#F29E20",
+        color: "#FFF",
+        borderRadius: 10,
+        padding: 5
+    },
+    descriptionTittle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#000",
+        marginBottom: 10,
+        alignSelf: "flex-start"
+    },
+    description: {
+        fontSize: 16,
+        color: "#555",
+        marginBottom: 20,
+        textAlign: "left",
+        width: "100%",
+        alignSelf: "flex-start"
+    },
+    quantityContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 10,
+        backgroundColor: "#FFF",
+        borderRadius: 25,
+        borderColor: "#D3D3D3",
+        borderWidth: 1,
+        padding: 5,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+        elevation: 5
+    },
+    quantityButton: {
+        backgroundColor: "#FFF",
+        padding: 7,
+        borderRadius: 25
+    },
+    quantityButtonText: {
+        fontSize: 18,
+        color: "#F29E20"
+    },
+    quantityInput: {
+        width: 30,
+        height: 30,
+        textAlign: "center",
+        marginHorizontal: 20,
+        fontWeight: "bold"
+    },
+    cuponContent: {
+        padding: 10,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        width: "100%"
+    },
+    button: {
+        backgroundColor: "#F29E20",
+        borderRadius: 10,
+        alignItems: "center",
+        marginBottom: 15,
+        width: width * 0.5,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+        elevation: 5
+    },
+    buttonContent: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-around",
+        width: "100%"
+    },
+    inputContent: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        width: "100%"
+    },
+    icon: {
+        width: 44,
+        height: 44,
+        marginRight: 5
+    },
+    icon2: {
+        width: 44,
+        height: 44,
+        marginRight: 5
+    },
+    buttonText: {
+        fontSize: 16,
+        color: "#fff",
+        fontWeight: "bold"
+    },
+    boldText: {
+        fontSize: 16,
+        color: "#000",
+        fontWeight: "bold"
+    },
+    normalText: {
+        fontSize: 14,
+        color: "#555"
+    },
+    align: {
+        alignItems: "flex-end",
+    },
+    codigoInput: {
+        width: width * 0.6,
+        height: 35,
+        textAlign: "left",
+        fontWeight: "bold",
+        backgroundColor: "#FFF",
+        marginHorizontal: 10,
+        borderRadius: 20,
+        borderColor: "#D3D3D3",
+        borderWidth: 1,
+        padding: 5,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+        elevation: 5
     }
 });
 
 export default ProductsDetails;
-
