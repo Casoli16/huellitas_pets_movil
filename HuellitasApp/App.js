@@ -4,6 +4,7 @@ import TabBar from "./src/navigation/TabBar";
 import StackNavigator from "./src/navigation/StackNavigator";
 import {NavigationContainer} from "@react-navigation/native";
 import {useState, useEffect} from "react";
+import {GestureHandlerRootView} from "react-native-gesture-handler";
 
 export default function App() {
   //API
@@ -33,15 +34,18 @@ export default function App() {
   }, [logueado, name, picture]);
 
   return(
-    <NavigationContainer>
-      {/*Verificamos con un if else si hay un usuario logeado, de ser asi entonces*/}
-      {/*se le mostrara el TabBar pero si no, el StackNavigatior(Contiene la pantalla de bienvenidda y login)*/}
-      {logueado ?
-        <TabBar logueado={logueado} setLogueado={setLogueado} name={name} picture={picture}/>
-          :
-        <StackNavigator logueado={logueado} setLogueado={setLogueado}/>
-      }
-    </NavigationContainer >
+   //No ayuda a implementar gestos a la app
+   <GestureHandlerRootView>
+     <NavigationContainer>
+       {/*Verificamos con un if else si hay un usuario logeado, de ser asi entonces*/}
+       {/*se le mostrara el TabBar pero si no, el StackNavigatior(Contiene la pantalla de bienvenidda y login)*/}
+       {logueado ?
+           <TabBar logueado={logueado} setLogueado={setLogueado} name={name} picture={picture}/>
+           :
+           <StackNavigator logueado={logueado} setLogueado={setLogueado}/>
+       }
+     </NavigationContainer >
+   </GestureHandlerRootView>
   );
 }
 
