@@ -6,6 +6,8 @@ import ProductsDetails from "../screens/ProductsDetails";
 import EditProfileScreen from "../screens/EditProfileScreen";
 import History from "../screens/History";
 import {StyleSheet} from "react-native";
+import DeliveryScreen1 from "../screens/DeliveryScreen1";
+import DeliveryScreen2 from "../screens/DeliveryScreen2";
 
 const Stack = createNativeStackNavigator();
 
@@ -65,6 +67,22 @@ const StackNavigator = ({logueado, setLogueado}) => {
                     component={History}
                     options={{
                         title: 'Historial',
+                        headerShown: true
+                    }}
+                />
+                <Stack.Screen
+                    name='Delivery1'
+                    component={DeliveryScreen1}
+                    options={{
+                        title: 'Pedido',
+                        headerShown: true
+                    }}
+                />
+                <Stack.Screen
+                    name='Delivery2'
+                    component={DeliveryScreen2}
+                    options={{
+                        title: 'Pedido',
                         headerShown: true
                     }}
                 />

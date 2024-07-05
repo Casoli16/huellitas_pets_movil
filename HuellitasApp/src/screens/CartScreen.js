@@ -7,19 +7,21 @@ import {useEffect, useState, useCallback} from "react";
 import { Swipeable } from "react-native-gesture-handler";
 import {AlertNotificationRoot, Dialog} from "react-native-alert-notification";
 import {DialogNotification, ToastNotification} from "../components/Alerts/AlertComponent";
-import {useFocusEffect, useRoute} from "@react-navigation/native";
+import {useFocusEffect, useNavigation, useRoute} from "@react-navigation/native";
 
 // Obtiene el tamaño de la pantalla en la que este.
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
-
 const CartScreen = () => {
     Fonts();
 
+    //Navegacion
+    const navigation = useNavigation();
+
+    //Recibir parametros que vienen de la pantalla de ProductsDetails
     const route = useRoute();
     const { state } = route.params || { state: false};
-    console.log(state);
 
     //Api
     const API = 'services/public/pedidos.php';
@@ -116,7 +118,11 @@ const CartScreen = () => {
     }
 
     const deleteMessage = async (id) => {
-        DialogNotification(3, '¿Estás seguro que quieres eliminar este producto de tu carrito de compras?','Sí', ()=>{deleteProduct(id)});
+        DialogNotification(
+            3, //Tipo de mensaje
+            '¿Estás seguro que quieres eliminar este producto de tu carrito de compras?', // Mensaje
+            'Sí', // Texto del boton
+            ()=>{deleteProduct(id)}); // Funcion que se activara al hacer clic al boton
     }
 
     //Funcion para eliminar un producto del carrito
@@ -196,7 +202,7 @@ const CartScreen = () => {
                         <Text style={styles.totalText}>Total:</Text>
                         <Text style={styles.totalPrice}>${totaPrice}</Text>
                     </View>
-                    <CustomButton title='Comprar' buttonColor='#EE964B' fontSize={18} colorText='white'/>
+                    <CustomButton title='Ir a pagar' buttonColor='#EE964B' fontSize={18} colorText='white' onPress={()=>{navigation.navigate('Delivery1')}}/>
                 </View>
             </View>
         </AlertNotificationRoot>

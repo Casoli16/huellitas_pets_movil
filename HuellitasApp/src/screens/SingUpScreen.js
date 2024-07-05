@@ -284,7 +284,6 @@ const SingUpScreen = () => {
                             value={passCheck}
                             onChangeText={setPassCheck}
                         />
-                        <Text onPress={''} style={styles.pass}>¿Has olvídado tú contraseña?</Text>
                     </View>
                 </View>
             </View>
@@ -328,7 +327,7 @@ const styles = StyleSheet.create({
     //ESTILOS PARA LOS INPUTS
     inputBox: {
         width: width * 0.8,
-        marginTop: 40
+        marginTop: 25
     },
     input: {
         marginVertical: 10,
@@ -362,7 +361,8 @@ const styles = StyleSheet.create({
     },
     text2: {
         fontFamily: 'Jost_600SemiBold',
-        fontSize: 16
+        fontSize: 16,
+        paddingBottom: 40
     },
     fecha: {
         fontWeight: '600',
