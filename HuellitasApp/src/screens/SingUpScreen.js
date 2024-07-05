@@ -126,6 +126,7 @@ const SingUpScreen = () => {
                         <TextInput
                             activeOutlineColor='#c5c4c2'
                             textContentType='givenName'
+                            placeholder="Nombre..."
                             mode='outlined'
                             outlineColor='#fff'
                             style={styles.textInput}
@@ -140,6 +141,7 @@ const SingUpScreen = () => {
                         <TextInput
                             activeOutlineColor='#c5c4c2'
                             textContentType='familyName'
+                            placeholder="Apellido..."
                             mode='outlined'
                             outlineColor='#fff'
                             style={styles.textInput}
@@ -176,6 +178,7 @@ const SingUpScreen = () => {
                         <TextInput
                             activeOutlineColor='#c5c4c2'
                             textContentType='emailAddress'
+                            placeholder="Correo..."
                             mode='outlined'
                             outlineColor='#fff'
                             style={styles.textInput}
@@ -216,6 +219,7 @@ const SingUpScreen = () => {
                                 textContentType='birthday'
                                 mode='outlined'
                                 outlineColor='#fff'
+                                placeholder="2024-01-02"
                                 style={[styles.textInput, { flex: 1 }]} // Asegúrate de que el TextInput ocupe todo el espacio
                                 //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
                                 left={<TextInput.Icon icon="calendar-month" />}
@@ -243,6 +247,7 @@ const SingUpScreen = () => {
                             textContentType='fullStreetAddress'
                             mode='outlined'
                             outlineColor='#fff'
+                            placeholder="Dirección..."
                             style={styles.textInput}
                             //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
                             left={<TextInput.Icon icon="compass-outline" />}
@@ -257,6 +262,7 @@ const SingUpScreen = () => {
                             secureTextEntry={true}
                             mode='outlined'
                             outlineColor='#fff'
+                            placeholder="*********"
                             style={styles.textInput}
                             //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
                             left={<TextInput.Icon icon="lock" />}
@@ -270,6 +276,7 @@ const SingUpScreen = () => {
                             activeOutlineColor='#c5c4c2'
                             secureTextEntry={true}
                             mode='outlined'
+                            placeholder="*********"
                             outlineColor='#fff'
                             style={styles.textInput}
                             //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
