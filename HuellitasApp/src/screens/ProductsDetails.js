@@ -6,6 +6,7 @@ import { SERVER_URL } from "../../api/components";
 import CommentBox from '../components/CommentBox';
 //Importamos la navegacion
 import {useNavigation} from "@react-navigation/native";
+import {ToastNotification} from "../components/Alerts/AlertComponent";
 
 const width = Dimensions.get("window").width;
 
@@ -49,7 +50,7 @@ const ProductsDetails = () => {
     useFocusEffect(
         React.useCallback(() => {
             fetchProducto();
-        }, [])
+        }, [idProducto])
     );
 
     const enviarCodigo = async () => {
@@ -84,10 +85,12 @@ const ProductsDetails = () => {
             const data = await fetchData(PEDIDOS_API, 'createDetail', form);
 
             if (data.status) {
-                console.log('Detalle de compra creado correctamente');
-                navigation.navigate('History');
+                await ToastNotification(1, data.message, true);
+                navigation.navigate('Cart', {
+                    state: true
+                });
             } else {
-                console.log('Sorry');
+                await ToastNotification(3, data.error, true);
             }
         } catch (error) {
             console.log(error);

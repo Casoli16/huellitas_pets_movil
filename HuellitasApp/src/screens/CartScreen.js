@@ -3,17 +3,23 @@ import Fonts from "../../fonts/fonts";
 import {Icon, TextInput, Card} from "react-native-paper";
 import CustomButton from "../components/CustomeButton";
 import fetchData, {SERVER_URL} from "../../api/components";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState, useCallback} from "react";
 import { Swipeable } from "react-native-gesture-handler";
 import {AlertNotificationRoot, Dialog} from "react-native-alert-notification";
 import {DialogNotification, ToastNotification} from "../components/Alerts/AlertComponent";
+import {useFocusEffect, useRoute} from "@react-navigation/native";
 
 // Obtiene el tamaño de la pantalla en la que este.
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
-const CartScreen = ({ state})=> {
+
+const CartScreen = () => {
     Fonts();
+
+    const route = useRoute();
+    const { state } = route.params || { state: false};
+    console.log(state);
 
     //Api
     const API = 'services/public/pedidos.php';
@@ -42,17 +48,23 @@ const CartScreen = ({ state})=> {
         }
     }
 
-    if(state){
-        fillCards();
-    }else{
-        console.log('No vienen productos');
-    }
 
+    //Es similar a useEffect, pero se ejecuta específicamente cuando la pantalla en la que se encuentra
+    // el componente está activa o enfocada, y se limpia cuando la pantalla pierde el enfoque.
+    useFocusEffect(
+        //Nos permite llamar a la funcion cada vez que state cambia.
+        useCallback(() => {
+            if(state === true){
+                fillCards();
+            }
+        }, [state])
+    );
 
-    //Cargamos nuestros productos del carrito
-    useEffect( () => {
-        fillCards();
-    }, [state]);
+    //Cuando se carga la pantalla llamamos a la funcion que carga los productos, esto porque el state viene falso
+    //entonces no cargaria la funcion, por ello agregamos este useEffect que se ejecuta nomas cargue la pantalla
+    useEffect(()=>{
+        fillCards()
+    }, []);
 
     //Carga el precio total del pedido calculado y cambia cada que products cambie.
     useEffect( () => {
@@ -126,7 +138,6 @@ const CartScreen = ({ state})=> {
     return(
         <AlertNotificationRoot>
             <View style={styles.container}>
-                <Text onPress={fillCards}>Cargar</Text>
                 <ScrollView style={{height: windowHeight * 0.5}}>
                     {hasProducts ? (
                         products.map((product, index) => {
