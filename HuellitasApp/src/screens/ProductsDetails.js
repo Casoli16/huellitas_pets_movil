@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, Image, ScrollView, Dimensions, TouchableOpacity
 import fetchData from '../../api/components';
 import { useRoute, useFocusEffect } from "@react-navigation/native";
 import { SERVER_URL } from "../../api/components";
+import CommentBox from '../components/CommentBox';
 //Importamos la navegacion
 import {useNavigation} from "@react-navigation/native";
 
@@ -23,6 +24,9 @@ const ProductsDetails = () => {
     const [precioProducto, setPrecioProducto] = useState(0);
     const [precioProductoColor, setPrecioProductoColor] = useState("#7C7979"); // Color inicial gris
     const [precioProductoAntes, setPrecioProductoAntes] = useState(0);
+
+    const [userRating, setUserRating] = useState(0); // Estado para manejar la calificación del usuario
+    const [comment, setComment] = useState(""); // Estado para manejar el comentario del usuario
 
     const fetchProducto = async () => {
         try {
@@ -102,6 +106,20 @@ const ProductsDetails = () => {
         }
     };
 
+    const handleRatingPress = (rating) => {
+        setUserRating(rating);
+    };
+
+    const handleCommentChange = (text) => {
+        setComment(text);
+    };
+
+    const handleSubmitReview = () => {
+        console.log("Rating:", userRating);
+        console.log("Comment:", comment);
+        // Aquí puedes enviar la calificación y el comentario al servidor
+    };
+
     if (!data) {
         return (
             <View style={styles.container}>
@@ -172,6 +190,42 @@ const ProductsDetails = () => {
                     <Image style={styles.icon2} source={require('../../assets/enviar_codigo.png')} />
                 </TouchableOpacity>
             </View>
+            <View style={styles.valorationContainer}>
+                <Text style={styles.TitleValoration}>Reseñas</Text>
+                <View style={styles.ratingContainer}>
+                    <Text style={styles.ratingTitle}>Tu puntuación sobre este producto</Text>
+                    <View style={styles.starsContainer}>
+                        {[...Array(5)].map((_, index) => (
+                            <TouchableOpacity key={index} onPress={() => handleRatingPress(index + 1)}>
+                                <Image
+                                    style={styles.star}
+                                    source={index < userRating ? require('../../assets/star_filled.png') : require('../../assets/star_empty.png')}
+                                />
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                    <TextInput
+                        style={styles.commentInput}
+                        placeholder="Escribe un comentario..."
+                        multiline={true}
+                        value={comment}
+                        onChangeText={handleCommentChange}
+                    />
+                    <TouchableOpacity style={styles.submitButton} onPress={handleSubmitReview}>
+                        <Text style={styles.submitButtonText}>Enviar reseña</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.separator} />
+                <View style={styles.commentsContainer}>
+                    <Text style={styles.TitleValoration}>Comentarios</Text>
+                    <CommentBox 
+                        author="CuidadoraDeAnimales21" 
+                        date="10 de enero del 2024" 
+                        comment="La comida le gustó mucho a mi perro, creo que es su favorita, la recomiendo mucho, espero a sus cachorros les guste tanto como al mío :)" 
+                        rating={4} 
+                    />
+                </View>
+            </View>
         </ScrollView>
     );
 };
@@ -191,6 +245,14 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 10
+    },
+    valorationContainer: {
+        width: width * 0.86,
+        backgroundColor: "#F5F5DC",
+        borderRadius: 20,
+        justifyContent: "center",
+        marginBottom: 10,
+        marginVertical: 30,
     },
     image: {
         width: "100%",
@@ -350,7 +412,65 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.8,
         shadowRadius: 2,
         elevation: 5
-    }
+    },
+    ratingContainer: {
+        alignItems: "center",
+        marginBottom: 20
+    },
+    ratingTitle: {
+        fontSize: 16,
+        marginBottom: 10,
+    },
+    starsContainer: {
+        flexDirection: "row",
+        marginBottom: 10
+    },
+    star: {
+        width: 26,
+        height: 26,
+        marginHorizontal: 2,
+    },
+    commentInput: {
+        width: width * 0.75,
+        height: 100,
+        backgroundColor: "#FFF",
+        borderRadius: 10,
+        padding: 10,
+        textAlignVertical: "top",
+        borderColor: "#FCA311",
+        borderWidth: 2,
+        marginBottom: 10,
+        marginTop: 20
+    },
+    submitButton: {
+        backgroundColor: "#F29E20",
+        borderRadius: 15,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        alignItems: "center"
+    },
+    submitButtonText: {
+        color: "#FFF",
+        fontWeight: "bold"
+    },
+    commentsContainer: {
+        width: "100%",
+        alignItems: "center",
+        marginBottom: 20
+    },
+    TitleValoration: {
+        fontSize: 19,
+        fontWeight: "bold",
+        marginBottom: 10,
+        alignSelf: "flex-start",
+        marginLeft: 15,
+        marginTop: 15
+    },
+    separator: {
+        height: 1,
+        backgroundColor: '#e0e0e0',
+        marginHorizontal: 16,
+    },
 });
 
 export default ProductsDetails;
