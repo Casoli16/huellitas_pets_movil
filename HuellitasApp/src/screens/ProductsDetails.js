@@ -4,10 +4,9 @@ import fetchData from '../../api/components';
 import { useRoute, useFocusEffect } from "@react-navigation/native";
 import { SERVER_URL } from "../../api/components";
 import CommentBox from '../components/CommentBox';
-//Importamos la navegacion
-import {useNavigation} from "@react-navigation/native";
-import {ToastNotification} from "../components/Alerts/AlertComponent";
-
+import { useNavigation } from "@react-navigation/native";
+import { ToastNotification } from "../components/Alerts/AlertComponent";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 const width = Dimensions.get("window").width;
 
 const ProductsDetails = () => {
@@ -25,6 +24,8 @@ const ProductsDetails = () => {
     const [precioProducto, setPrecioProducto] = useState(0);
     const [precioProductoColor, setPrecioProductoColor] = useState("#7C7979"); // Color inicial gris
     const [precioProductoAntes, setPrecioProductoAntes] = useState(0);
+    const [decorationText, setDecorationText] = useState("none");
+    const [precioProductoColor2, setPrecioProductoColor2] = useState("#FFF"); // Color inicial gris
 
     const [userRating, setUserRating] = useState(0); // Estado para manejar la calificación del usuario
     const [comment, setComment] = useState(""); // Estado para manejar el comentario del usuario
@@ -38,7 +39,10 @@ const ProductsDetails = () => {
                 setData(data1.dataset[0]);
                 setPrecioProducto(data1.dataset[0].precio_producto);
                 setPrecioProductoAntes(data1.dataset[0].precio_producto);
-                setPrecioProductoColor("#7C7979");
+                setDecorationText("none");
+                setIdCupon(0);
+                setPrecioProductoColor2("#FFF"); // Color inicial blanco
+                setPrecioProductoColor("#7C7979"); // Color inicial gris
             } else {
                 console.log('Cuando status es 0 ', data1);
             }
@@ -62,7 +66,9 @@ const ProductsDetails = () => {
             if (data.status === 1) {
                 setIdCupon(data.dataset.id_cupon);
                 setPrecioProducto(precioProductoAntes - (precioProductoAntes * data.dataset.porcentaje_cupon / 100));
-                setPrecioProductoColor("#00CC00"); // Cambia el color a verde cuando se aplica el cupón
+                setDecorationText("line-through");
+                setPrecioProductoColor2("#00CC00"); // Cambia el color a verde cuando se aplica el cupón
+                //setPrecioProductoColor("#00CC00"); // Cambia el color a verde cuando se aplica el cupón
             } else if (data.status === 2) {
                 console.log('cupon ya utilizado');
             } else if (data.status === 3) {
@@ -142,7 +148,10 @@ const ProductsDetails = () => {
             <Text style={styles.title}>{data.nombre_producto}</Text>
             <Text style={styles.brand}>{data.nombre_marca}</Text>
             <View style={styles.priceCategoryContainer}>
-                <Text style={[styles.price, { color: precioProductoColor }]}>${precioProducto}</Text>
+                <View style={styles.alignNew}>
+                    <Text style={[styles.price, { color: precioProductoColor, textDecorationLine: decorationText }]}>${data.precio_producto}</Text>
+                    <Text style={[styles.price, { color: precioProductoColor2 }]}>${precioProducto}</Text>
+                </View>
                 <Text style={styles.category}>{data.nombre_categoria}</Text>
             </View>
             <Text style={styles.descriptionTittle}>Descripción</Text>
@@ -169,13 +178,15 @@ const ProductsDetails = () => {
 
                 <TouchableOpacity style={styles.button} onPress={SendToCart}>
                     <View style={styles.buttonContent}>
-                        <Image style={styles.icon} source={require('../../assets/carrito.png')} />
+                        <View style={styles.circle}>
+                            <Ionicons name="cart-outline" size={25} color="#000" />
+                        </View>
                         <Text style={styles.buttonText}>Añadir al carrito</Text>
                     </View>
                 </TouchableOpacity>
             </View>
             <View style={styles.cuponContent}>
-                <Image style={styles.icon2} source={require('../../assets/img_cupon.png')} />
+            <Ionicons name="pricetags" size={26} color="#F29E20" />
                 <View style={styles.align}>
                     <Text style={styles.boldText}>¿Tienes un cupón de descuento?</Text>
                     <Text style={styles.normalText}>Podrás añadirlo en la parte de abajo.</Text>
@@ -190,8 +201,9 @@ const ProductsDetails = () => {
                 />
 
                 <TouchableOpacity onPress={enviarCodigo}>
-                    <Image style={styles.icon2} source={require('../../assets/enviar_codigo.png')} />
+                    <Ionicons name="send" size={28} color="#000" />
                 </TouchableOpacity>
+
             </View>
             <View style={styles.valorationContainer}>
                 <Text style={styles.TitleValoration}>Reseñas</Text>
@@ -221,11 +233,11 @@ const ProductsDetails = () => {
                 <View style={styles.separator} />
                 <View style={styles.commentsContainer}>
                     <Text style={styles.TitleValoration}>Comentarios</Text>
-                    <CommentBox 
-                        author="CuidadoraDeAnimales21" 
-                        date="10 de enero del 2024" 
-                        comment="La comida le gustó mucho a mi perro, creo que es su favorita, la recomiendo mucho, espero a sus cachorros les guste tanto como al mío :)" 
-                        rating={4} 
+                    <CommentBox
+                        author="CuidadoraDeAnimales21"
+                        date="10 de enero del 2024"
+                        comment="La comida le gustó mucho a mi perro, creo que es su favorita, la recomiendo mucho, espero a sus cachorros les guste tanto como al mío :)"
+                        rating={4}
                     />
                 </View>
             </View>
@@ -275,6 +287,12 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         alignSelf: "flex-start"
     },
+    alignNew: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "50%",
+        paddingHorizontal: 2,
+    },
     priceCategoryContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
@@ -295,6 +313,17 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 5
     },
+    circle: {
+        width: 35,
+        height: 35,
+        borderRadius: 18, // La mitad del tamaño del ancho/alto para hacerla circular
+        backgroundColor: '#fff', // Puedes cambiar el color según tus necesidades
+        padding: 2,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 5,
+        marginTop: 5,
+    },
     descriptionTittle: {
         fontSize: 18,
         fontWeight: "bold",
@@ -313,15 +342,15 @@ const styles = StyleSheet.create({
     quantityContainer: {
         flexDirection: "row",
         alignItems: "center",
-        marginBottom: 10,
+        marginBottom: 12,
         backgroundColor: "#FFF",
-        borderRadius: 25,
+        borderRadius: 22,
         borderColor: "#D3D3D3",
         borderWidth: 1,
-        padding: 5,
+        padding: 3,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.8,
+        shadowOpacity: 0.6,
         shadowRadius: 2,
         elevation: 5
     },
@@ -398,18 +427,20 @@ const styles = StyleSheet.create({
     },
     align: {
         alignItems: "flex-end",
+        marginLeft: 10
     },
     codigoInput: {
         width: width * 0.6,
         height: 35,
         textAlign: "left",
-        fontWeight: "bold",
+        fontWeight: "semi-bold",
         backgroundColor: "#FFF",
         marginHorizontal: 10,
         borderRadius: 20,
         borderColor: "#D3D3D3",
         borderWidth: 1,
         padding: 5,
+        paddingLeft: 10, // Añade esta línea para darle espacio al texto desde la izquierda
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.8,
