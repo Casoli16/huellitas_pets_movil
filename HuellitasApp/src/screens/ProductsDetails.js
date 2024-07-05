@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, Image, ScrollView, Dimensions, TouchableOpacity, TextInput } from "react-native";
+import { View, StyleSheet, Text, Image, ScrollView, Dimensions, TouchableOpacity, TextInput, ImageBackground, Share  } from "react-native";
 import fetchData from '../../api/components';
 import { useRoute, useFocusEffect } from "@react-navigation/native";
 import { SERVER_URL } from "../../api/components";
@@ -109,6 +109,26 @@ const ProductsDetails = () => {
         }
     };
 
+    const share = async () => {
+        try {
+            const result = await Share.share({
+                message: `¡Hola! Te comparto este producto que encontré en HuellitasApp: ${data.nombre_producto} de la marca ${data.nombre_marca}. Puedes encontrarlo en la categoría de ${data.nombre_categoria} por solo $${precioProducto}. ¡No te lo pierdas!. Lo encontré en http://localhost/Huellitas_pets/system_huellitas/views/public/producto.html?producto=${idProducto}`,
+            });
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    console.log("Actividad compartida:", result.activityType);
+                } else {
+                    console.log("Compartido");
+                }
+            } else if (result.action === Share.dismissedAction) {
+                console.log("Compartir cancelado");
+            }
+        } catch (error) {
+            console.error("Error al compartir:", error.message);
+        }
+    };
+
+
     const handleDecrement = () => {
         if (quantity > 1) {
             setQuantity(quantity - 1);
@@ -140,11 +160,17 @@ const ProductsDetails = () => {
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.imageContainer}>
-                <Image
-                    style={styles.image}
-                    source={{ uri: `${SERVER_URL}images/productos/${data.imagen_producto}` }}
-                />
-            </View>
+            <ImageBackground
+                style={styles.image}
+                source={{ uri: `${SERVER_URL}images/productos/${data.imagen_producto}` }}
+            >
+                <TouchableOpacity onPress={share}>
+                <View style={styles.circle2}>
+                    <Ionicons name="share-social-sharp" size={25} color="#F29E20" />
+                </View>
+                </TouchableOpacity>
+            </ImageBackground>
+        </View>
             <Text style={styles.title}>{data.nombre_producto}</Text>
             <Text style={styles.brand}>{data.nombre_marca}</Text>
             <View style={styles.priceCategoryContainer}>
@@ -259,7 +285,27 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         justifyContent: "center",
         alignItems: "center",
-        marginBottom: 10
+        marginBottom: 10,
+        overflow: "hidden", // Necesario para que el borde redondeado aplique a la imagen de fondo
+    },
+    image: {
+        width: "100%",
+        height: "100%",
+        resizeMode: "contain",
+        borderRadius: 20,
+        justifyContent: "flex-end", // Alinea el contenido al fondo del contenedor
+        alignItems: "flex-end", // Alinea el contenido a la derecha del contenedor
+    },
+    circle2: {
+        width: 40,
+        height: 40,
+        borderRadius: 25,
+        backgroundColor: "white",
+        justifyContent: "center",
+        alignItems: "center",
+        margin: 10, // Espaciado desde los bordes del contenedor
+        borderWidth: 0.5, // Grosor del borde
+        borderColor: "orange", // Color del borde
     },
     valorationContainer: {
         width: width * 0.86,
@@ -268,12 +314,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         marginBottom: 10,
         marginVertical: 30,
-    },
-    image: {
-        width: "100%",
-        height: "100%",
-        resizeMode: "contain",
-        borderRadius: 20
     },
     title: {
         fontSize: 20,
@@ -364,8 +404,8 @@ const styles = StyleSheet.create({
         color: "#F29E20"
     },
     quantityInput: {
-        width: 30,
-        height: 30,
+        width: 25,
+        height: 25,
         textAlign: "center",
         marginHorizontal: 20,
         fontWeight: "bold"
