@@ -53,6 +53,7 @@ const ProductsDetails = () => {
 
     useFocusEffect(
         React.useCallback(() => {
+            setQuantity(1)
             fetchProducto();
         }, [idProducto])
     );
