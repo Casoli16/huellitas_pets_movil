@@ -7,10 +7,16 @@ import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/nativ
 import CustomButton from "../components/CustomeButton";
 import UpdatePasswordModal from '../components/UpdatePasswordModal';
 import { SERVER_URL } from "../../api/components";
+import {LoadingDots} from "@mrakesh0608/react-native-loading-dots";
+import {AlertNotificationRoot} from "react-native-alert-notification";
 
 const width = Dimensions.get("window").width;
+const windowHeight = Dimensions.get('window').height;
 
 const ProfileScreen = ({setName, setPicture}) => {
+    //Para manejar cuando este cargando la pantalla
+    const [loading, setLoading] = useState(true);
+
     const [profile, setProfile] = useState({
         nombre_cliente: '',
         apellido_cliente: '',
@@ -33,6 +39,7 @@ const ProfileScreen = ({setName, setPicture}) => {
                 setProfile(data.dataset);
                 setPicture(data.dataset.imagen_cliente);
                 setName(data.dataset.nombre_cliente);
+                setLoading(false);
             } else {
                 console.log('No se encontraron datos del perfil');
             }
@@ -71,129 +78,140 @@ const ProfileScreen = ({setName, setPicture}) => {
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <IconButton icon="history" size={35} onPress={goToHistorial} />
-                </View>
-                <View style={styles.col}>
-                    <Image style={styles.img} source={{ uri: `${SERVER_URL}images/clientes/${profile.imagen_cliente}` }} />
-                    <View style={styles.inputBox}>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>Nombre</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                textContentType='givenName'
-                                mode='outlined'
-                                outlineColor='#EDEDED'
-                                style={styles.textInput}
-                                left={<TextInput.Icon icon="account" />}
-                                value={profile.nombre_cliente}
-                                editable={false}
-                            />
-                        </View>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>Apellido</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                textContentType='familyName'
-                                mode='outlined'
-                                outlineColor='#EDEDED'
-                                style={styles.textInput}
-                                left={<TextInput.Icon icon="account-plus" />}
-                                value={profile.apellido_cliente}
-                                editable={false}
-                            />
-                        </View>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>DUI</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                placeholder="00000000-0"
-                                mode='outlined'
-                                outlineColor='#EDEDED'
-                                style={styles.textInput}
-                                left={<TextInput.Icon icon="card-account-details-outline" />}
-                                render={(props) => (
-                                    <TextInputMask
-                                        {...props}
-                                        type={'custom'}
-                                        options={{ mask: '99999999-9' }}
-                                        value={profile.dui_cliente}
-                                        editable={false}
-                                    />
-                                )}
-                            />
-                        </View>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>Correo electrónico</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                textContentType='emailAddress'
-                                mode='outlined'
-                                outlineColor='#EDEDED'
-                                style={styles.textInput}
-                                left={<TextInput.Icon icon="email" />}
-                                value={profile.correo_cliente}
-                                editable={false}
-                            />
-                        </View>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>Teléfono</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                textContentType='telephoneNumber'
-                                mode='outlined'
-                                placeholder="0000-0000"
-                                outlineColor='#EDEDED'
-                                style={styles.textInput}
-                                left={<TextInput.Icon icon="phone-outline" />}
-                                render={(props) => (
-                                    <TextInputMask
-                                        {...props}
-                                        type={'custom'}
-                                        options={{ mask: '9999-9999' }}
-                                        value={profile.telefono_cliente}
-                                        editable={false}
-                                    />
-                                )}
-                            />
-                        </View>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>Fecha de nacimiento</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                textContentType='birthday'
-                                mode='outlined'
-                                outlineColor='#EDEDED'
-                                style={[styles.textInput, { flex: 1 }]}
-                                left={<TextInput.Icon icon="calendar-month" />}
-                                value={profile.nacimiento_cliente}
-                                editable={false}
-                            />
-                        </View>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>Dirección</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                textContentType='fullStreetAddress'
-                                mode='outlined'
-                                outlineColor='#EDEDED'
-                                style={styles.textInput}
-                                left={<TextInput.Icon icon="compass-outline" />}
-                                value={profile.direccion_cliente}
-                                editable={false}
-                            />
-                        </View>
-                        <View style={styles.buttonContainer}>
-                            <CustomButton title='Editar' colorText='white' buttonColor='#EE964B' fontSize={16} buttonMargin={10} onPress={goToEditar} />
-                            <CustomButton title='Actualizar contraseña' colorText='white' buttonColor='#F95738' fontSize={16} onPress={() => setShowPasswordModal(true)} />
-                        </View>
-                        <View style={styles.input}></View>
+                {loading ? (
+                    <View style={styles.loading}>
+                        <LoadingDots
+                            animation="typing"
+                            color="#EE964B"
+                            containerStyle={{ backgroundColor: '#FAF0CA', padding: 18, borderRadius: 10 }}
+                        />
+                        <Text style={styles.loadingText}>Cargando...</Text>
                     </View>
-                </View>
-            </View>
-            <UpdatePasswordModal visible={showPasswordModal} onClose={() => setShowPasswordModal(false)} />
-        </ScrollView>
+                ) : (
+                    <View style={styles.container}>
+                        <View style={styles.header}>
+                            <IconButton icon="history" size={35} onPress={goToHistorial} />
+                        </View>
+                        <View style={styles.col}>
+                            <Image style={styles.img} source={{ uri: `${SERVER_URL}images/clientes/${profile.imagen_cliente}` }} />
+                            <View style={styles.inputBox}>
+                                <View style={styles.input}>
+                                    <Text style={styles.inputText}>Nombre</Text>
+                                    <TextInput
+                                        activeOutlineColor="#c5c4c2"
+                                        textContentType="givenName"
+                                        mode="outlined"
+                                        outlineColor="#EDEDED"
+                                        style={styles.textInput}
+                                        left={<TextInput.Icon icon="account" />}
+                                        value={profile.nombre_cliente}
+                                        editable={false}
+                                    />
+                                </View>
+                                <View style={styles.input}>
+                                    <Text style={styles.inputText}>Apellido</Text>
+                                    <TextInput
+                                        activeOutlineColor="#c5c4c2"
+                                        textContentType="familyName"
+                                        mode="outlined"
+                                        outlineColor="#EDEDED"
+                                        style={styles.textInput}
+                                        left={<TextInput.Icon icon="account-plus" />}
+                                        value={profile.apellido_cliente}
+                                        editable={false}
+                                    />
+                                </View>
+                                <View style={styles.input}>
+                                    <Text style={styles.inputText}>DUI</Text>
+                                    <TextInput
+                                        activeOutlineColor="#c5c4c2"
+                                        placeholder="00000000-0"
+                                        mode="outlined"
+                                        outlineColor="#EDEDED"
+                                        style={styles.textInput}
+                                        left={<TextInput.Icon icon="card-account-details-outline" />}
+                                        render={(props) => (
+                                            <TextInputMask
+                                                {...props}
+                                                type="custom"
+                                                options={{ mask: '99999999-9' }}
+                                                value={profile.dui_cliente}
+                                                editable={false}
+                                            />
+                                        )}
+                                    />
+                                </View>
+                                <View style={styles.input}>
+                                    <Text style={styles.inputText}>Correo electrónico</Text>
+                                    <TextInput
+                                        activeOutlineColor="#c5c4c2"
+                                        textContentType="emailAddress"
+                                        mode="outlined"
+                                        outlineColor="#EDEDED"
+                                        style={styles.textInput}
+                                        left={<TextInput.Icon icon="email" />}
+                                        value={profile.correo_cliente}
+                                        editable={false}
+                                    />
+                                </View>
+                                <View style={styles.input}>
+                                    <Text style={styles.inputText}>Teléfono</Text>
+                                    <TextInput
+                                        activeOutlineColor="#c5c4c2"
+                                        textContentType="telephoneNumber"
+                                        mode="outlined"
+                                        placeholder="0000-0000"
+                                        outlineColor="#EDEDED"
+                                        style={styles.textInput}
+                                        left={<TextInput.Icon icon="phone-outline" />}
+                                        render={(props) => (
+                                            <TextInputMask
+                                                {...props}
+                                                type="custom"
+                                                options={{ mask: '9999-9999' }}
+                                                value={profile.telefono_cliente}
+                                                editable={false}
+                                            />
+                                        )}
+                                    />
+                                </View>
+                                <View style={styles.input}>
+                                    <Text style={styles.inputText}>Fecha de nacimiento</Text>
+                                    <TextInput
+                                        activeOutlineColor="#c5c4c2"
+                                        textContentType="birthday"
+                                        mode="outlined"
+                                        outlineColor="#EDEDED"
+                                        style={[styles.textInput, { flex: 1 }]}
+                                        left={<TextInput.Icon icon="calendar-month" />}
+                                        value={profile.nacimiento_cliente}
+                                        editable={false}
+                                    />
+                                </View>
+                                <View style={styles.input}>
+                                    <Text style={styles.inputText}>Dirección</Text>
+                                    <TextInput
+                                        activeOutlineColor="#c5c4c2"
+                                        textContentType="fullStreetAddress"
+                                        mode="outlined"
+                                        outlineColor="#EDEDED"
+                                        style={styles.textInput}
+                                        left={<TextInput.Icon icon="compass-outline" />}
+                                        value={profile.direccion_cliente}
+                                        editable={false}
+                                    />
+                                </View>
+                                <View style={styles.buttonContainer}>
+                                    <CustomButton title="Editar" colorText="white" buttonColor="#EE964B" fontSize={16} buttonMargin={10} onPress={goToEditar} />
+                                    <CustomButton title="Actualizar contraseña" colorText="white" buttonColor="#F95738" fontSize={16} onPress={() => setShowPasswordModal(true)} />
+                                </View>
+                                <View style={styles.input}></View>
+                            </View>
+                        </View>
+                    </View>
+                )}
+                <UpdatePasswordModal visible={showPasswordModal} onClose={() => setShowPasswordModal(false)} />
+            </ScrollView>
     );
 };
 
@@ -203,6 +221,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         justifyContent: "center",
         paddingHorizontal: 20
+    },
+    loading: {
+        height: windowHeight * 0.6,
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center"
+    },
+    loadingText: {
+        marginTop: 5,
+        fontFamily: 'Jost_500Medium',
     },
     img: {
         width: 150,

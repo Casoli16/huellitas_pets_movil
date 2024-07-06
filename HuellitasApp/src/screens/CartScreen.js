@@ -53,7 +53,6 @@ const CartScreen = () => {
             setProducts([]);
             setHasProducts(false);
             setLoading(false);
-            ToastNotification(3, 'Aún no hay productos agregados a tu carrito')
         }
     }
 

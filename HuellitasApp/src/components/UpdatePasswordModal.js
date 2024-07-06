@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import CustomButton from '../components/CustomeButton';
 import fetchData from '../../api/components';
+import {ToastNotification} from "./Alerts/AlertComponent";
+import {AlertNotificationRoot} from "react-native-alert-notification";
 
 const UpdatePasswordModal = ({ visible, onClose }) => {
     const [pass, setPass] = useState('');
@@ -21,10 +23,12 @@ const UpdatePasswordModal = ({ visible, onClose }) => {
             const data = await fetchData(USER_API, 'changePassword', form);
 
             if(data.status){
-                console.log('Tu constraseña se ha cambiado exitosamente');
-                onClose();
+                ToastNotification(1, data.message, true);
+                setTimeout(()=>{
+                    onClose();
+                }, 1500)
             } else {
-                console.log('Sorry');
+                ToastNotification(2, data.error, true)
             }
         } catch (error) {
             console.log(error);
@@ -33,47 +37,49 @@ const UpdatePasswordModal = ({ visible, onClose }) => {
     };
 
     return (
-        <Modal
-            visible={visible}
-            transparent
-            animationType="slide"
-        >
-            <View style={styles.modalBackground}>
-                <View style={styles.modalContainer}>
-                    <Text style={styles.title}>Actualizar Contraseña</Text>
-                    <TextInput
-                        label="Contraseña Actual"
-                        value={pass}
-                        onChangeText={setPass}
-                        secureTextEntry
-                        style={styles.input}
-                    />
-                    <TextInput
-                        label="Nueva Contraseña"
-                        value={newpass}
-                        onChangeText={setNewPass}
-                        secureTextEntry
-                        style={styles.input}
-                    />
-                    <TextInput
-                        label="Confirmar Nueva Contraseña"
-                        value={newPassCheck}
-                        onChangeText={setNewPassCheck}
-                        secureTextEntry
-                        style={styles.input}
-                    />
-                    <CustomButton
-                        title="Actualizar"
-                        colorText="white"
-                        buttonColor="#EE964B"
-                        onPress={handleUpdatePassword}
-                    />
-                    <TouchableOpacity onPress={onClose}>
-                        <Text style={styles.cancel}>Cancelar</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </Modal>
+            <Modal
+                visible={visible}
+                transparent
+                animationType="slide"
+            >
+                <AlertNotificationRoot>
+                    <View style={styles.modalBackground}>
+                        <View style={styles.modalContainer}>
+                            <Text style={styles.title}>Actualizar Contraseña</Text>
+                            <TextInput
+                                label="Contraseña Actual"
+                                value={pass}
+                                onChangeText={setPass}
+                                secureTextEntry
+                                style={styles.input}
+                            />
+                            <TextInput
+                                label="Nueva Contraseña"
+                                value={newpass}
+                                onChangeText={setNewPass}
+                                secureTextEntry
+                                style={styles.input}
+                            />
+                            <TextInput
+                                label="Confirmar Nueva Contraseña"
+                                value={newPassCheck}
+                                onChangeText={setNewPassCheck}
+                                secureTextEntry
+                                style={styles.input}
+                            />
+                            <CustomButton
+                                title="Actualizar"
+                                colorText="white"
+                                buttonColor="#EE964B"
+                                onPress={handleUpdatePassword}
+                            />
+                            <TouchableOpacity onPress={onClose}>
+                                <Text style={styles.cancel}>Cancelar</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </AlertNotificationRoot>
+            </Modal>
     );
 };
 
