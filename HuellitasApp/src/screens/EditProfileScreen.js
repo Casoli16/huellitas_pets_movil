@@ -7,7 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Fonts from "../../fonts/fonts";
 import {SERVER_URL} from "../../api/components";
-
+import { LoadingDots } from '@mrakesh0608/react-native-loading-dots';
 //Importamos el boton personalizado -- Pueden utilizar este
 import CustomButton from "../components/CustomeButton";
 import * as ImagePicker from "expo-image-picker";
@@ -16,6 +16,7 @@ import {DialogNotification, ToastNotification} from "../components/Alerts/AlertC
 import {AlertNotificationRoot, Dialog} from "react-native-alert-notification";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
+const windowHeight = Dimensions.get('window').height;
 const width = Dimensions.get("window").width;
 
 const EditProfileScreen = () => {
@@ -25,6 +26,7 @@ const EditProfileScreen = () => {
     const [date, setDate] = useState(new Date());
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     //Declaracion de campos para el login
     const [name, setName] = useState('');
@@ -164,6 +166,7 @@ const EditProfileScreen = () => {
     }
 
     useEffect(() => {
+        setLoading(true)
         const fetchProfileData = async () => {
             try {
                 const data = await fetchData(USER_API, 'readProfile');
@@ -177,8 +180,10 @@ const EditProfileScreen = () => {
                     setBirthdate(profileData.nacimiento_cliente);
                     setDirection(profileData.direccion_cliente);
                     setProfile(profileData);
+                    setLoading(false)
                 } else {
                     console.log('No se encontraron datos del perfil');
+                    setLoading(false)
                 }
             } catch (error) {
                 console.error('Error al obtener los datos del perfil:', error);
@@ -199,158 +204,169 @@ const EditProfileScreen = () => {
     return (
        <AlertNotificationRoot>
            <ScrollView contentContainerStyle={styles.scrollContainer}>
-               <View style={styles.container}>
-                   <View style={styles.header}>
-                       <IconButton icon="pencil" size={35} onPress={goToProfile}/>
+               {loading ? (
+                   <View style={styles.loading}>
+                       <LoadingDots
+                           animation={"typing"}
+                           color={'#EE964B'}
+                           containerStyle={{backgroundColor: '#FAF0CA', padding: 18, borderRadius: 10,}}
+                       />
+                       <Text style={styles.loadingText}>Cargando...</Text>
                    </View>
-                   <View style={styles.col}>
-                       {file ? (
-                           <Image style={styles.img} source={{ uri: file }} />
-                       ) : (
-                           <Image style={styles.img} source={{ uri: `${SERVER_URL}images/clientes/${profile.imagen_cliente}` }} />
-                       )}
-                       <View style={styles.buttonContainer}>
-                           <TouchableOpacity onPress={()=>{takeImage()}}>
-                               <Icon name='camera-outline'  size={40} color={'#F95738'} />
-                           </TouchableOpacity>
-                           <TouchableOpacity onPress={()=>{pickImage()}}>
-                               <Icon name='image-multiple-outline'  size={35} color={'#EE964B'} />
-                           </TouchableOpacity>
+               ):(
+                   <View style={styles.container}>
+                       <View style={styles.header}>
+                           <IconButton icon="pencil" size={35} onPress={goToProfile}/>
                        </View>
-                       <View style={styles.inputBox}>
-                           <View style={styles.input}>
-                               <Text style={styles.inputText}>Nombre</Text>
-                               <TextInput
-                                   activeOutlineColor='#c5c4c2'
-                                   textContentType='givenName'
-                                   mode='outlined'
-                                   outlineColor='#EDEDED'
-                                   style={styles.textInput}
-                                   left={<TextInput.Icon icon="account" />}
-                                   value={name}
-                                   onChangeText={setName}
-                               />
+                       <View style={styles.col}>
+                           {file ? (
+                               <Image style={styles.img} source={{ uri: file }} />
+                           ) : (
+                               <Image style={styles.img} source={{ uri: `${SERVER_URL}images/clientes/${profile.imagen_cliente}` }} />
+                           )}
+                           <View style={styles.buttonContainer}>
+                               <TouchableOpacity onPress={()=>{takeImage()}}>
+                                   <Icon name='camera-outline'  size={40} color={'#F95738'} />
+                               </TouchableOpacity>
+                               <TouchableOpacity onPress={()=>{pickImage()}}>
+                                   <Icon name='image-multiple-outline'  size={35} color={'#EE964B'} />
+                               </TouchableOpacity>
                            </View>
-                           <View style={styles.input}>
-                               <Text style={styles.inputText}>Apellido</Text>
-                               <TextInput
-                                   activeOutlineColor='#c5c4c2'
-                                   textContentType='familyName'
-                                   mode='outlined'
-                                   outlineColor='#EDEDED'
-                                   style={styles.textInput}
-                                   left={<TextInput.Icon icon="account-plus" />}
-                                   value={lastName}
-                                   onChangeText={setLastName}
-                               />
-                           </View>
-                           <View style={styles.input}>
-                               <Text style={styles.inputText}>DUI</Text>
-                               <TextInput
-                                   activeOutlineColor='#c5c4c2'
-                                   placeholder="00000000-0"
-                                   mode='outlined'
-                                   outlineColor='#EDEDED'
-                                   style={styles.textInput}
-                                   left={<TextInput.Icon icon="card-account-details-outline" />}
-                                   render={(props) => (
-                                       <TextInputMask
-                                           {...props}
-                                           type={'custom'}
-                                           options={{
-                                               mask: '99999999-9'
-                                           }}
-                                           value={dui}
-                                           onChangeText={setDUI}
-                                       />
-                                   )}
-                               />
-                           </View>
-                           <View style={styles.input}>
-                               <Text style={styles.inputText}>Correo electrónico</Text>
-                               <TextInput
-                                   activeOutlineColor='#c5c4c2'
-                                   textContentType='emailAddress'
-                                   mode='outlined'
-                                   outlineColor='#EDEDED'
-                                   style={styles.textInput}
-                                   left={<TextInput.Icon icon="email" />}
-                                   value={email}
-                                   onChangeText={setEmail}
-                                   editable={false} // Solo lectura
-                               />
-                           </View>
-                           <View style={styles.input}>
-                               <Text style={styles.inputText}>Teléfono</Text>
-                               <TextInput
-                                   activeOutlineColor='#c5c4c2'
-                                   textContentType='telephoneNumber'
-                                   mode='outlined'
-                                   placeholder="0000-0000"
-                                   outlineColor='#EDEDED'
-                                   style={styles.textInput}
-                                   left={<TextInput.Icon icon="phone-outline" />}
-                                   render={(props) => (
-                                       <TextInputMask
-                                           {...props}
-                                           type={'custom'}
-                                           options={{
-                                               mask: '9999-9999'
-                                           }}
-                                           value={phone}
-                                           onChangeText={setPhone}
-                                       />
-                                   )}
-                               />
-                           </View>
-                           <View style={styles.input}>
-                               <Text style={styles.inputText}>Fecha de nacimiento</Text>
-                               <TouchableOpacity onPress={showDatepicker} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                           <View style={styles.inputBox}>
+                               <View style={styles.input}>
+                                   <Text style={styles.inputText}>Nombre</Text>
                                    <TextInput
                                        activeOutlineColor='#c5c4c2'
-                                       textContentType='birthday'
+                                       textContentType='givenName'
                                        mode='outlined'
-                                       outlineColor='#fff'
-                                       style={[styles.textInput, { flex: 1 }]} // Asegúrate de que el TextInput ocupe todo el espacio
-                                       //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
-                                       left={<TextInput.Icon icon="calendar-month" />}
-                                       value={birthdate}
-                                       onChangeText={setBirthdate}
-                                       editable={false} // Deshabilita la edición directa del TextInput
+                                       outlineColor='#EDEDED'
+                                       style={styles.textInput}
+                                       left={<TextInput.Icon icon="account" />}
+                                       value={name}
+                                       onChangeText={setName}
                                    />
-                               </TouchableOpacity>
-                               {show && (
-                                   <DateTimePicker
-                                       testID="dateTimePicker"
-                                       value={date}
-                                       mode="date"
-                                       is24Hour={true}
-                                       minimumDate={new Date(new Date().getFullYear() - 100, new Date().getMonth(), new Date().getDate())} // Fecha mínima permitida (100 años atrás desde la fecha actual)
-                                       maximumDate={new Date()} // Fecha máxima permitida (fecha actual)
-                                       onChange={onChange}
+                               </View>
+                               <View style={styles.input}>
+                                   <Text style={styles.inputText}>Apellido</Text>
+                                   <TextInput
+                                       activeOutlineColor='#c5c4c2'
+                                       textContentType='familyName'
+                                       mode='outlined'
+                                       outlineColor='#EDEDED'
+                                       style={styles.textInput}
+                                       left={<TextInput.Icon icon="account-plus" />}
+                                       value={lastName}
+                                       onChangeText={setLastName}
                                    />
-                               )}
+                               </View>
+                               <View style={styles.input}>
+                                   <Text style={styles.inputText}>DUI</Text>
+                                   <TextInput
+                                       activeOutlineColor='#c5c4c2'
+                                       placeholder="00000000-0"
+                                       mode='outlined'
+                                       outlineColor='#EDEDED'
+                                       style={styles.textInput}
+                                       left={<TextInput.Icon icon="card-account-details-outline" />}
+                                       render={(props) => (
+                                           <TextInputMask
+                                               {...props}
+                                               type={'custom'}
+                                               options={{
+                                                   mask: '99999999-9'
+                                               }}
+                                               value={dui}
+                                               onChangeText={setDUI}
+                                           />
+                                       )}
+                                   />
+                               </View>
+                               <View style={styles.input}>
+                                   <Text style={styles.inputText}>Correo electrónico</Text>
+                                   <TextInput
+                                       activeOutlineColor='#c5c4c2'
+                                       textContentType='emailAddress'
+                                       mode='outlined'
+                                       outlineColor='#EDEDED'
+                                       style={styles.textInput}
+                                       left={<TextInput.Icon icon="email" />}
+                                       value={email}
+                                       onChangeText={setEmail}
+                                       editable={false} // Solo lectura
+                                   />
+                               </View>
+                               <View style={styles.input}>
+                                   <Text style={styles.inputText}>Teléfono</Text>
+                                   <TextInput
+                                       activeOutlineColor='#c5c4c2'
+                                       textContentType='telephoneNumber'
+                                       mode='outlined'
+                                       placeholder="0000-0000"
+                                       outlineColor='#EDEDED'
+                                       style={styles.textInput}
+                                       left={<TextInput.Icon icon="phone-outline" />}
+                                       render={(props) => (
+                                           <TextInputMask
+                                               {...props}
+                                               type={'custom'}
+                                               options={{
+                                                   mask: '9999-9999'
+                                               }}
+                                               value={phone}
+                                               onChangeText={setPhone}
+                                           />
+                                       )}
+                                   />
+                               </View>
+                               <View style={styles.input}>
+                                   <Text style={styles.inputText}>Fecha de nacimiento</Text>
+                                   <TouchableOpacity onPress={showDatepicker} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                       <TextInput
+                                           activeOutlineColor='#c5c4c2'
+                                           textContentType='birthday'
+                                           mode='outlined'
+                                           outlineColor='#fff'
+                                           style={[styles.textInput, { flex: 1 }]} // Asegúrate de que el TextInput ocupe todo el espacio
+                                           //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
+                                           left={<TextInput.Icon icon="calendar-month" />}
+                                           value={birthdate}
+                                           onChangeText={setBirthdate}
+                                           editable={false} // Deshabilita la edición directa del TextInput
+                                       />
+                                   </TouchableOpacity>
+                                   {show && (
+                                       <DateTimePicker
+                                           testID="dateTimePicker"
+                                           value={date}
+                                           mode="date"
+                                           is24Hour={true}
+                                           minimumDate={new Date(new Date().getFullYear() - 100, new Date().getMonth(), new Date().getDate())} // Fecha mínima permitida (100 años atrás desde la fecha actual)
+                                           maximumDate={new Date()} // Fecha máxima permitida (fecha actual)
+                                           onChange={onChange}
+                                       />
+                                   )}
+                               </View>
+                               <View style={styles.input}>
+                                   <Text style={styles.inputText}>Dirección</Text>
+                                   <TextInput
+                                       activeOutlineColor='#c5c4c2'
+                                       textContentType='fullStreetAddress'
+                                       mode='outlined'
+                                       outlineColor='#EDEDED'
+                                       style={styles.textInput}
+                                       left={<TextInput.Icon icon="compass-outline" />}
+                                       value={direction}
+                                       onChangeText={setDirection}
+                                   />
+                               </View>
+                               <View style={styles.buttonContainer}>
+                                   <CustomButton title='Actualizar datos' colorText='white' buttonColor='#EE964B' fontSize={16} onPress={UpdateProfile}/>
+                               </View>
+                               <View style={styles.input}></View>
                            </View>
-                           <View style={styles.input}>
-                               <Text style={styles.inputText}>Dirección</Text>
-                               <TextInput
-                                   activeOutlineColor='#c5c4c2'
-                                   textContentType='fullStreetAddress'
-                                   mode='outlined'
-                                   outlineColor='#EDEDED'
-                                   style={styles.textInput}
-                                   left={<TextInput.Icon icon="compass-outline" />}
-                                   value={direction}
-                                   onChangeText={setDirection}
-                               />
-                           </View>
-                           <View style={styles.buttonContainer}>
-                               <CustomButton title='Actualizar datos' colorText='white' buttonColor='#EE964B' fontSize={16} onPress={UpdateProfile}/>
-                           </View>
-                           <View style={styles.input}></View>
                        </View>
                    </View>
-               </View>
+               )}
            </ScrollView>
        </AlertNotificationRoot>
     );
@@ -362,6 +378,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         justifyContent: "center",
         paddingHorizontal: 20
+    },
+    loading: {
+        height: windowHeight * 0.6,
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center"
+    },
+    loadingText: {
+        marginTop: 5,
+        fontFamily: 'Jost_500Medium',
     },
     img: {
         width: 150,

@@ -13,6 +13,7 @@
     "@expo-google-fonts/jost": "^0.2.3",
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
+    "@mrakesh0608/react-native-loading-dots": "^1.0.9",
     "@react-native-community/datetimepicker": "^8.1.1",
     "@react-navigation/bottom-tabs": "^6.5.20",
     "@react-navigation/native": "^6.1.17",
