@@ -40,7 +40,7 @@ export default function App() {
        {/*Verificamos con un if else si hay un usuario logeado, de ser asi entonces*/}
        {/*se le mostrara el TabBar pero si no, el StackNavigatior(Contiene la pantalla de bienvenidda y login)*/}
        {logueado ?
-           <TabBar logueado={logueado} setLogueado={setLogueado} name={name} picture={picture}/>
+           <TabBar logueado={logueado} setLogueado={setLogueado} name={name} picture={picture} setName={setName} setPicture={setPicture}/>
            :
            <StackNavigator logueado={logueado} setLogueado={setLogueado}/>
        }

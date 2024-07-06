@@ -10,7 +10,7 @@ import { SERVER_URL } from "../../api/components";
 
 const width = Dimensions.get("window").width;
 
-const ProfileScreen = () => {
+const ProfileScreen = ({setName, setPicture}) => {
     const [profile, setProfile] = useState({
         nombre_cliente: '',
         apellido_cliente: '',
@@ -31,6 +31,8 @@ const ProfileScreen = () => {
 
             if (data.status === 1 && data.dataset) {
                 setProfile(data.dataset);
+                setPicture(data.dataset.imagen_cliente);
+                setName(data.dataset.nombre_cliente);
             } else {
                 console.log('No se encontraron datos del perfil');
             }

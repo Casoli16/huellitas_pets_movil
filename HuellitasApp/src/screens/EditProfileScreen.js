@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import fetchData from '../../api/components';
-import { View, StyleSheet, Image, Text, Dimensions, ScrollView, TouchableOpacity, Button } from "react-native"; // Añadido Button
+import {View, StyleSheet, Image, Text, Dimensions, ScrollView, TouchableOpacity, Button, Alert} from "react-native"; // Añadido Button
 import { TextInput, IconButton } from 'react-native-paper';
 import { TextInputMask } from 'react-native-masked-text';
 import { useNavigation } from "@react-navigation/native";
@@ -10,6 +10,11 @@ import {SERVER_URL} from "../../api/components";
 
 //Importamos el boton personalizado -- Pueden utilizar este
 import CustomButton from "../components/CustomeButton";
+import * as ImagePicker from "expo-image-picker";
+import {launchImageLibraryAsync} from "expo-image-picker";
+import {DialogNotification, ToastNotification} from "../components/Alerts/AlertComponent";
+import {AlertNotificationRoot, Dialog} from "react-native-alert-notification";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const width = Dimensions.get("window").width;
 
@@ -30,7 +35,53 @@ const EditProfileScreen = () => {
     const [birthdate, setBirthdate] = useState('');
     const [direction, setDirection] = useState('');
 
-            /*
+    //Funcion para subir imagen desde la galeria y que se pueda mostrar.
+    const [file, setFile] = useState(null);
+
+    const pickImage = async () => {
+        const option = {
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            aspect: [4, 3],
+            quality: 1
+        };
+
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if(status !== 'granted') {
+            ToastNotification(3, 'Para poder cambiar la imagen necesitamos los permisos para acceder a tu galería');
+        } else {
+            const result = await launchImageLibraryAsync(option);
+            if(!result.canceled){
+                const selectedAsset = result.assets[0];
+                setFile(selectedAsset.uri);
+            }
+        }
+    }
+
+    //Funcion para tomar una imagen desde la camara y que se pueda mostrar.
+    const takeImage = async () => {
+
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+        if (status !== 'granted') {
+            // Manejo si los permisos no fueron otorgados
+            ToastNotification(3, 'Para poder tomar fotos, necesitamos permisos para acceder a la cámara y a la galería.');
+        } else {
+            const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                maxWidth: 50,
+                maxHeight: 50,
+            });
+
+            if (!result.canceled) {
+                const selectedImage = result.assets[0];
+                setFile(selectedImage.uri);
+            }
+        }
+    }
+
+    /*
     Codigo para mostrar el datetimepicker
     */
 
@@ -78,18 +129,37 @@ const EditProfileScreen = () => {
             form.append('nacimientoCliente', birthdate);
             form.append('telefonoCliente', phone);
 
-
-            const data = await fetchData(USER_API, 'editProfilePhone', form);
-            
-            if(data.status){
-                console.log('Tu cuenta se ha actualizado exitosamente');
-                goToProfile();
+            if(file){
+                form.append('imagenCliente', {
+                    uri: file,
+                    type: 'image/png',
+                    name: 'imagen.png',
+                });
             } else {
-                console.log('Sorry');
+                form.append('imagenCliente', {
+                    uri: `${SERVER_URL}images/clientes/${profile.imagen_cliente}`,
+                    type: 'image/png',
+                    name: 'imagen.png',
+                });
+            }
+
+
+
+            const data = await fetchData(USER_API, 'editProfile', form);
+
+            if(data.status){
+                DialogNotification(1, data.message);
+                setTimeout(() => {
+                    Dialog.hide();
+                    goToProfile();
+                }, 1500);
+
+            } else {
+                DialogNotification(3, data.error, 'Ok');
             }
         } catch (error) {
             console.log(error);
-            
+
         }
     }
 
@@ -114,7 +184,7 @@ const EditProfileScreen = () => {
                 console.error('Error al obtener los datos del perfil:', error);
             }
         };
-    
+
         fetchProfileData();
     }, []);
 
@@ -127,148 +197,162 @@ const EditProfileScreen = () => {
     Fonts();
 
     return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <IconButton icon="pencil" size={35} onPress={goToProfile}/>
-                </View>
-                <View style={styles.col}>
-                    <Image style={styles.img} source={{uri:`${SERVER_URL}images/clientes/${profile.imagen_cliente}`}}/>
-                    <View style={styles.inputBox}>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>Nombre</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                textContentType='givenName'
-                                mode='outlined'
-                                outlineColor='#EDEDED'
-                                style={styles.textInput}
-                                left={<TextInput.Icon icon="account" />}
-                                value={name}
-                                onChangeText={setName}
-                            />
-                        </View>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>Apellido</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                textContentType='familyName'
-                                mode='outlined'
-                                outlineColor='#EDEDED'
-                                style={styles.textInput}
-                                left={<TextInput.Icon icon="account-plus" />}
-                                value={lastName}
-                                onChangeText={setLastName}
-                            />
-                        </View>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>DUI</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                placeholder="00000000-0"
-                                mode='outlined'
-                                outlineColor='#EDEDED'
-                                style={styles.textInput}
-                                left={<TextInput.Icon icon="card-account-details-outline" />}
-                                render={(props) => (
-                                    <TextInputMask
-                                        {...props}
-                                        type={'custom'}
-                                        options={{
-                                            mask: '99999999-9'
-                                        }}
-                                        value={dui}
-                                        onChangeText={setDUI}
-                                    />
-                                )}
-                            />
-                        </View>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>Correo electrónico</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                textContentType='emailAddress'
-                                mode='outlined'
-                                outlineColor='#EDEDED'
-                                style={styles.textInput}
-                                left={<TextInput.Icon icon="email" />}
-                                value={email}
-                                onChangeText={setEmail}
-                                editable={false} // Solo lectura
-                            />
-                        </View>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>Teléfono</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                textContentType='telephoneNumber'
-                                mode='outlined'
-                                placeholder="0000-0000"
-                                outlineColor='#EDEDED'
-                                style={styles.textInput}
-                                left={<TextInput.Icon icon="phone-outline" />}
-                                render={(props) => (
-                                    <TextInputMask
-                                        {...props}
-                                        type={'custom'}
-                                        options={{
-                                            mask: '9999-9999'
-                                        }}
-                                        value={phone}
-                                        onChangeText={setPhone}
-                                    />
-                                )}
-                            />
-                        </View>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>Fecha de nacimiento</Text>
-                            <TouchableOpacity onPress={showDatepicker} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <TextInput
-                                    activeOutlineColor='#c5c4c2'
-                                    textContentType='birthday'
-                                    mode='outlined'
-                                    outlineColor='#fff'
-                                    style={[styles.textInput, { flex: 1 }]} // Asegúrate de que el TextInput ocupe todo el espacio
-                                    //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
-                                    left={<TextInput.Icon icon="calendar-month" />}
-                                    value={birthdate}
-                                    onChangeText={setBirthdate}
-                                    editable={false} // Deshabilita la edición directa del TextInput
-                                />
-                            </TouchableOpacity>
-                            {show && (
-                                <DateTimePicker
-                                    testID="dateTimePicker"
-                                    value={date}
-                                    mode="date"
-                                    is24Hour={true}
-                                    minimumDate={new Date(new Date().getFullYear() - 100, new Date().getMonth(), new Date().getDate())} // Fecha mínima permitida (100 años atrás desde la fecha actual)
-                                    maximumDate={new Date()} // Fecha máxima permitida (fecha actual)
-                                    onChange={onChange}
-                                />
-                            )}
-                        </View>
-                        <View style={styles.input}>
-                            <Text style={styles.inputText}>Dirección</Text>
-                            <TextInput
-                                activeOutlineColor='#c5c4c2'
-                                textContentType='fullStreetAddress'
-                                mode='outlined'
-                                outlineColor='#EDEDED'
-                                style={styles.textInput}
-                                left={<TextInput.Icon icon="compass-outline" />}
-                                value={direction}
-                                onChangeText={setDirection}
-                            />
-                        </View>
-                        <View style={styles.buttonContainer}>
-                            <CustomButton title='Actualizar datos' colorText='white' buttonColor='#EE964B' fontSize={16} onPress={UpdateProfile}/>
-                        </View>
-                        <View style={styles.input}></View>
-                    </View>
-                </View>
-            </View>
-        </ScrollView>
+       <AlertNotificationRoot>
+           <ScrollView contentContainerStyle={styles.scrollContainer}>
+               <View style={styles.container}>
+                   <View style={styles.header}>
+                       <IconButton icon="pencil" size={35} onPress={goToProfile}/>
+                   </View>
+                   <View style={styles.col}>
+                       {file ? (
+                           <Image style={styles.img} source={{ uri: file }} />
+                       ) : (
+                           <Image style={styles.img} source={{ uri: `${SERVER_URL}images/clientes/${profile.imagen_cliente}` }} />
+                       )}
+                       <View style={styles.buttonContainer}>
+                           <TouchableOpacity onPress={()=>{takeImage()}}>
+                               <Icon name='camera-outline'  size={40} color={'#F95738'} />
+                           </TouchableOpacity>
+                           <TouchableOpacity onPress={()=>{pickImage()}}>
+                               <Icon name='image-multiple-outline'  size={35} color={'#EE964B'} />
+                           </TouchableOpacity>
+                       </View>
+                       <View style={styles.inputBox}>
+                           <View style={styles.input}>
+                               <Text style={styles.inputText}>Nombre</Text>
+                               <TextInput
+                                   activeOutlineColor='#c5c4c2'
+                                   textContentType='givenName'
+                                   mode='outlined'
+                                   outlineColor='#EDEDED'
+                                   style={styles.textInput}
+                                   left={<TextInput.Icon icon="account" />}
+                                   value={name}
+                                   onChangeText={setName}
+                               />
+                           </View>
+                           <View style={styles.input}>
+                               <Text style={styles.inputText}>Apellido</Text>
+                               <TextInput
+                                   activeOutlineColor='#c5c4c2'
+                                   textContentType='familyName'
+                                   mode='outlined'
+                                   outlineColor='#EDEDED'
+                                   style={styles.textInput}
+                                   left={<TextInput.Icon icon="account-plus" />}
+                                   value={lastName}
+                                   onChangeText={setLastName}
+                               />
+                           </View>
+                           <View style={styles.input}>
+                               <Text style={styles.inputText}>DUI</Text>
+                               <TextInput
+                                   activeOutlineColor='#c5c4c2'
+                                   placeholder="00000000-0"
+                                   mode='outlined'
+                                   outlineColor='#EDEDED'
+                                   style={styles.textInput}
+                                   left={<TextInput.Icon icon="card-account-details-outline" />}
+                                   render={(props) => (
+                                       <TextInputMask
+                                           {...props}
+                                           type={'custom'}
+                                           options={{
+                                               mask: '99999999-9'
+                                           }}
+                                           value={dui}
+                                           onChangeText={setDUI}
+                                       />
+                                   )}
+                               />
+                           </View>
+                           <View style={styles.input}>
+                               <Text style={styles.inputText}>Correo electrónico</Text>
+                               <TextInput
+                                   activeOutlineColor='#c5c4c2'
+                                   textContentType='emailAddress'
+                                   mode='outlined'
+                                   outlineColor='#EDEDED'
+                                   style={styles.textInput}
+                                   left={<TextInput.Icon icon="email" />}
+                                   value={email}
+                                   onChangeText={setEmail}
+                                   editable={false} // Solo lectura
+                               />
+                           </View>
+                           <View style={styles.input}>
+                               <Text style={styles.inputText}>Teléfono</Text>
+                               <TextInput
+                                   activeOutlineColor='#c5c4c2'
+                                   textContentType='telephoneNumber'
+                                   mode='outlined'
+                                   placeholder="0000-0000"
+                                   outlineColor='#EDEDED'
+                                   style={styles.textInput}
+                                   left={<TextInput.Icon icon="phone-outline" />}
+                                   render={(props) => (
+                                       <TextInputMask
+                                           {...props}
+                                           type={'custom'}
+                                           options={{
+                                               mask: '9999-9999'
+                                           }}
+                                           value={phone}
+                                           onChangeText={setPhone}
+                                       />
+                                   )}
+                               />
+                           </View>
+                           <View style={styles.input}>
+                               <Text style={styles.inputText}>Fecha de nacimiento</Text>
+                               <TouchableOpacity onPress={showDatepicker} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                   <TextInput
+                                       activeOutlineColor='#c5c4c2'
+                                       textContentType='birthday'
+                                       mode='outlined'
+                                       outlineColor='#fff'
+                                       style={[styles.textInput, { flex: 1 }]} // Asegúrate de que el TextInput ocupe todo el espacio
+                                       //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
+                                       left={<TextInput.Icon icon="calendar-month" />}
+                                       value={birthdate}
+                                       onChangeText={setBirthdate}
+                                       editable={false} // Deshabilita la edición directa del TextInput
+                                   />
+                               </TouchableOpacity>
+                               {show && (
+                                   <DateTimePicker
+                                       testID="dateTimePicker"
+                                       value={date}
+                                       mode="date"
+                                       is24Hour={true}
+                                       minimumDate={new Date(new Date().getFullYear() - 100, new Date().getMonth(), new Date().getDate())} // Fecha mínima permitida (100 años atrás desde la fecha actual)
+                                       maximumDate={new Date()} // Fecha máxima permitida (fecha actual)
+                                       onChange={onChange}
+                                   />
+                               )}
+                           </View>
+                           <View style={styles.input}>
+                               <Text style={styles.inputText}>Dirección</Text>
+                               <TextInput
+                                   activeOutlineColor='#c5c4c2'
+                                   textContentType='fullStreetAddress'
+                                   mode='outlined'
+                                   outlineColor='#EDEDED'
+                                   style={styles.textInput}
+                                   left={<TextInput.Icon icon="compass-outline" />}
+                                   value={direction}
+                                   onChangeText={setDirection}
+                               />
+                           </View>
+                           <View style={styles.buttonContainer}>
+                               <CustomButton title='Actualizar datos' colorText='white' buttonColor='#EE964B' fontSize={16} onPress={UpdateProfile}/>
+                           </View>
+                           <View style={styles.input}></View>
+                       </View>
+                   </View>
+               </View>
+           </ScrollView>
+       </AlertNotificationRoot>
     );
 };
 
@@ -282,7 +366,7 @@ const styles = StyleSheet.create({
     img: {
         width: 150,
         height: 150,
-        borderRadius: 100
+        borderRadius: 100,
     },
     header: {
         flexDirection: 'row',
@@ -313,7 +397,8 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
-        marginTop: 20,
+        gap: 12,
+        marginTop: 20
     },
 });
 

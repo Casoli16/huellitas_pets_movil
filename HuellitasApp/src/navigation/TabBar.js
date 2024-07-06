@@ -8,17 +8,19 @@ import ProfileScreen from "../screens/ProfileScreen";
 import LogOut from '../components/LogOut';
 import StackNavigator from "./StackNavigator";
 import fetchData, {SERVER_URL} from "../../api/components";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import React from "react";
 
 const Tab = createBottomTabNavigator();
 
-const TabBar = ({logueado, setLogueado, name, picture}) =>  {
+const TabBar = ({logueado, setLogueado, name, picture, setName, setPicture}) =>  {
     const firstName = name.split(" ")[0];
 
     return (
         <Tab.Navigator initialRouteName='Home' screenOptions={{
                 // Estilos para el tabBar
                 tabBarStyle: styles.tabBar,
-                tabBarActiveTintColor: '#ef5400',
+                tabBarActiveTintColor: '#EE964B',
                 // Estilos para el header
                 headerStyle: styles.header,
                 headerTitleAlign: "center",
@@ -29,7 +31,7 @@ const TabBar = ({logueado, setLogueado, name, picture}) =>  {
                     options={{
                         title: 'Carrito',
                         tabBarIcon: () => (
-                            <Image source={require('../../assets/TabBarIcons/shoppingCart.png')}/>
+                            <Icon name='cart-outline' size={26}/>
                         )
                     }}
                 >
@@ -41,7 +43,7 @@ const TabBar = ({logueado, setLogueado, name, picture}) =>  {
                     options={{
                         title: 'Tienda',
                         tabBarIcon: () => (
-                            <Image source={require('../../assets/TabBarIcons/shop.png')}/>
+                            <Icon name='shopping-outline' size={26}/>
                         )
                     }}
                 >
@@ -53,7 +55,7 @@ const TabBar = ({logueado, setLogueado, name, picture}) =>  {
                     options={{
                         title: 'Inicio',
                         tabBarIcon: () => (
-                            <Image source={require('../../assets/TabBarIcons/home.png')}/>
+                            <Icon name='home-outline' size={33} color={'#EE964B'}/>
                         )
                 }}
                 >
@@ -66,12 +68,12 @@ const TabBar = ({logueado, setLogueado, name, picture}) =>  {
                         headerShown: false,
                         title: 'Cerrar sesión',
                         tabBarIcon: () => (
-                            <Image source={require('../../assets/TabBarIcons/logOut.png')}/>
+                            <Icon name='logout' size={26}/>
                         )
                     }}
                 >
                 {/*Pasamos como parametro el estado de la variable logueado.*/}
-                {props => <LogOut {...props} setLogueado={setLogueado} logueado={logueado} />}
+                {props => <LogOut {...props} setLogueado={setLogueado} logueado={logueado}  />}
                 </Tab.Screen>
                 <Tab.Screen
                     name='Profile'
@@ -84,7 +86,7 @@ const TabBar = ({logueado, setLogueado, name, picture}) =>  {
                     }}
                 >
                 {/*Pasamos como parametro el estado de la variable logueado.*/}
-                {props => <ProfileScreen {...props} setLogueado={setLogueado} logueado={logueado} />}
+                {props => <ProfileScreen {...props} setLogueado={setLogueado} logueado={logueado} setName={setName} setPicture={setPicture} />}
                 </Tab.Screen>
 
             <Tab.Screen
