@@ -15,13 +15,13 @@ export default function App() {
   const API = 'services/public/clientes.php';
   //Declaramos la variable para guardar si hay un usuario logueado.
   const [logueado, setLogueado] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [load, setLoad] = useState();
   const [name, setName] = useState('');
   const [picture, setPicture] = useState('');
 
   //Verificamos si ya habia una sesion activa - usuario logueado
   const sessionActive = async () => {
-    setLoading(true);
+    setLoad(true)
     const data = await fetchData(API, 'getUser');
     if(data.session){
       //Si hay un usuario logueado entonces mandamos true a la variable logueado
@@ -29,13 +29,13 @@ export default function App() {
       setName(data.name);
       setPicture(data.picture);
       setTimeout(()=>{
-        setLoading(false)
+        setLoad(false)
       }, 1500)
     } else {
       //Si no hay un usuario logueado entonces mandamos false a la variable logueado
       setLogueado(false);
       setTimeout(()=>{
-        setLoading(false)
+        setLoad(false)
       }, 2000)
     }
   }
@@ -45,7 +45,8 @@ export default function App() {
     sessionActive();
   }, [logueado, name, picture]);
 
-  if(loading) {
+  //Verifica si load esta en true, de ser asi entonces moestrar la pantalla de carga
+  if(load) {
     return <LoadingScreen/>
   }
 
@@ -56,7 +57,7 @@ export default function App() {
        {/*Verificamos con un if else si hay un usuario logeado, de ser asi entonces*/}
        {/*se le mostrara el TabBar pero si no, el StackNavigatior(Contiene la pantalla de bienvenidda y login)*/}
        {logueado ?
-           <TabBar logueado={logueado} setLogueado={setLogueado} name={name} picture={picture} setName={setName} setPicture={setPicture}/>
+           <TabBar logueado={logueado} setLogueado={setLogueado} setLoad={setLoad} name={name} picture={picture} setName={setName} setPicture={setPicture}/>
            :
            <StackNavigator logueado={logueado} setLogueado={setLogueado}/>
        }

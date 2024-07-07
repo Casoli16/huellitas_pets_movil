@@ -4,17 +4,24 @@ import LottieView from 'lottie-react-native';
 import Fonts from "../../fonts/fonts";
 
 const LoadingScreen = ()=> {
+    // Cargamos las fuentes tipograficas
     Fonts();
 
     return(
         <View style={styles.container}>
+            {/*Cargamos la animacion*/}
             <LottieView
-                source={require('../../assets/wired-flat-1160-cat-head.json')}
+                source={require('../../assets/animation/wired-flat-1160-cat-head.json')}
                 autoPlay
                 loop
                 style={styles.lottie}
             />
-            <Text style={styles.loadingText}>Cargando...</Text>
+            <LottieView
+                source={require('../../assets/animation/loading.json')}
+                autoPlay
+                loop
+                style={styles.lottie2}
+            />
         </View>
     )
 };
@@ -26,14 +33,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    logo: {
-        width: 200,
-        height: 200,
-        marginBottom: 50,
-    },
     lottie: {
         width: 150,
         height: 200,
+    },
+    lottie2: {
+        marginTop: -60,
+        width: 150,
+        height: 150,
     },
     loadingText: {
         backgroundColor: '#f4d86f',
@@ -43,7 +50,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: '#482F24',
         fontFamily: 'Jost_500Medium',
-    }
+    },
 });
 
 export default LoadingScreen;

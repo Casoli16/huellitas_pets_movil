@@ -13,7 +13,7 @@ import React from "react";
 
 const Tab = createBottomTabNavigator();
 
-const TabBar = ({logueado, setLogueado, name, picture, setName, setPicture}) =>  {
+const TabBar = ({logueado, setLogueado, setLoad, name, picture, setName, setPicture}) =>  {
     const firstName = name.split(" ")[0];
 
     return (
@@ -86,7 +86,7 @@ const TabBar = ({logueado, setLogueado, name, picture, setName, setPicture}) => 
                     }}
                 >
                 {/*Pasamos como parametro el estado de la variable logueado.*/}
-                {props => <ProfileScreen {...props} setLogueado={setLogueado} logueado={logueado} setName={setName} setPicture={setPicture} />}
+                {props => <ProfileScreen {...props} setLogueado={setLogueado} logueado={logueado} setLoad={setLoad}  setName={setName} setPicture={setPicture} />}
                 </Tab.Screen>
 
             <Tab.Screen

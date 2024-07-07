@@ -13,7 +13,7 @@ import {AlertNotificationRoot} from "react-native-alert-notification";
 const width = Dimensions.get("window").width;
 const windowHeight = Dimensions.get('window').height;
 
-const ProfileScreen = ({setName, setPicture}) => {
+const ProfileScreen = ({setName, setPicture, setLoad}) => {
     //Para manejar cuando este cargando la pantalla
     const [loading, setLoading] = useState(true);
 
@@ -39,7 +39,10 @@ const ProfileScreen = ({setName, setPicture}) => {
                 setProfile(data.dataset);
                 setPicture(data.dataset.imagen_cliente);
                 setName(data.dataset.nombre_cliente);
+                //Controla el icono de carga de esta pantalla
                 setLoading(false);
+                //Controla la pantalla de carga general
+                setLoad(false);
             } else {
                 console.log('No se encontraron datos del perfil');
             }
