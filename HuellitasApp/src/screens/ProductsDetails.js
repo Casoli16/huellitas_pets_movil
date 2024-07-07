@@ -22,6 +22,9 @@ const ProductsDetails = () => {
 
     const [data, setData] = useState(null);
     const [quantity, setQuantity] = useState(1);
+    const [messageCupon, setmessageCupon] = useState("");
+    const [messageCuponColor, setmessageCuponColor] = useState("FFF");
+    const [messageCuponFont, setmessageCuponFont] = useState(13);
     const [cupon, setCupon] = useState("");
     const [idcupon, setIdCupon] = useState(0);
     const [precioProducto, setPrecioProducto] = useState(0);
@@ -50,6 +53,9 @@ const ProductsDetails = () => {
                 setPrecioProductoColor2("#FFF"); // Color inicial blanco
                 setPrecioProductoColor("#7C7979"); // Color inicial gris
                 setLoading(false);
+                setmessageCupon("");
+                setmessageCuponColor("FFF");
+                setmessageCuponFont(1);
             } else {
                 console.log('Cuando status es 0 ', data1);
             }
@@ -75,17 +81,37 @@ const ProductsDetails = () => {
                 setIdCupon(data.dataset.id_cupon);
                 setPrecioProducto(precioProductoAntes - (precioProductoAntes * data.dataset.porcentaje_cupon / 100));
                 setDecorationText("line-through");
+                setmessageCuponFont(13);
                 setPrecioProductoColor2("#00CC00"); // Cambia el color a verde cuando se aplica el cupón
+                setmessageCuponColor("#00CC00");
+                setmessageCupon(data.dataset.mensaje + " del " + data.dataset.porcentaje_cupon + "% de descuento");
                 //setPrecioProductoColor("#00CC00"); // Cambia el color a verde cuando se aplica el cupón
             } else if (data.status == 2) {
-                ToastNotification(2, 'cupon ya utilizado', true);
+                setIdCupon(0);
                 console.log('cupon ya utilizado');
+                setmessageCuponColor("#ff0000");
+                setmessageCupon("Cupón ya utilizado");
+                setDecorationText("none");
+                setPrecioProductoColor2("#FFF"); 
+                setPrecioProducto(0);
             } else if (data.status == 3) {
-                ToastNotification(2, 'cupon vacio', true);
+                setIdCupon(0);
+                setmessageCuponFont(13);
+                setmessageCuponColor("#ff0000");
+                setmessageCupon("Cupón vacío");
+                setDecorationText("none");
+                setPrecioProductoColor2("#FFF"); 
                 console.log('cupon vacio');
+                setPrecioProducto(0);
             } else {
-                ToastNotification(2, 'cupon ya utilizado', true);
+                setIdCupon(0);
+                setmessageCuponFont(13);
+                setmessageCuponColor("#ff0000");
+                setmessageCupon("Cupón ya utilizado o no existe");
+                setDecorationText("none");
+                setPrecioProductoColor2("#FFF"); 
                 console.log('cupon ya utilizado 2');
+                setPrecioProducto(0);
             }
         } catch (error) {
             console.log(error);
@@ -248,6 +274,7 @@ const ProductsDetails = () => {
                         </TouchableOpacity>
 
                     </View>
+                    <Text style={[styles.brand2, { color: messageCuponColor }, {fontSize: messageCuponFont}]}>{messageCupon}</Text>
                     <View style={styles.valorationContainer}>
                         <Text style={styles.TitleValoration}>Reseñas</Text>
                         <View style={styles.ratingContainer}>
@@ -354,6 +381,11 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: "#888",
         marginBottom: 10,
+        alignSelf: "flex-start"
+    },
+    brand2: {
+        padding: 12,
+        color: "#FFF",
         alignSelf: "flex-start"
     },
     alignNew: {

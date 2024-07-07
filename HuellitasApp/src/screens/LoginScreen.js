@@ -92,7 +92,7 @@ const LoginScreen = ({ logueado, setLogueado}) => {
                           value={pass}
                           onChangeText={setPass}
                       />
-                      <Text onPress={goToRec1} style={styles.pass}>¿Has olvídado tú contraseña?</Text>
+                      <Text onPress={goToRec1} style={styles.pass}>¿Has olvídado tu contraseña?</Text>
                   </View>
               </View>
           </View>
