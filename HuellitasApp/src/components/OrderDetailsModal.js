@@ -182,6 +182,7 @@ const styles = StyleSheet.create({
     },
     orderDetailValue: {
         fontSize: 14,
+        width: 180
     },
     closeButton: {
         backgroundColor: '#FFA500',
