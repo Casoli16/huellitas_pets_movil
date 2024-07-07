@@ -1,6 +1,6 @@
 // Variable que guarda la ip para importarla en la ruta general del servidor
-//Api de guayoip-config 192.168.0.10
-let ip = `192.168.0.10`;
+//Api de guayoip-config 192.168.0.4
+let ip = `192.168.0.4`;
 
 // URL base del servidor
 export const SERVER_URL = `http://${ip}/Huellitas_pets/system_huellitas/api/`;

@@ -8,6 +8,9 @@ import History from "../screens/History";
 import {StyleSheet} from "react-native";
 import DeliveryScreen1 from "../screens/DeliveryScreen1";
 import DeliveryScreen2 from "../screens/DeliveryScreen2";
+import RecoveryPass1 from "../screens/RecoveryPass1";
+import RecoveryPass2 from "../screens/RecoveryPass2";
+import RecoveryPass3 from "../screens/RecoveryPass3";
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +38,27 @@ const StackNavigator = ({logueado, setLogueado}) => {
                     component={SingUpScreen}
                     options={{
                         title: 'Sing Up'
+                }}
+                />
+                <Stack.Screen
+                    name='RecoveryPass1'
+                    component={RecoveryPass1}
+                    options={{
+                        title: 'Recuperación de contraseña- email'
+                }}
+                />
+                <Stack.Screen
+                    name='RecoveryPass2'
+                    component={RecoveryPass2}
+                    options={{
+                        title: 'Recuperación de contraseña- código'
+                }}
+                />
+                <Stack.Screen
+                    name='RecoveryPass3'
+                    component={RecoveryPass3}
+                    options={{
+                        title: 'Recuperación de contraseña- nueva contraseña'
                 }}
                 />
                 <Stack.Screen

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import fetchData from '../../api/components';
 
 import {View, StyleSheet, Image, Text, Dimensions, Touchable, TouchableOpacity} from "react-native";
 import { TextInput } from 'react-native-paper';
@@ -15,30 +14,10 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 
-const LoginScreen = ({ logueado, setLogueado}) => {
+const RecoveryPass1 = () => {
     //Declaracion de campos para el login
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
-
-    const USER_API = 'services/public/clientes.php';
-
-    const Login = async () => {
-        //Creamos el forms que mandara los datos a la api
-        const form = new FormData();
-        form.append('correo', email);
-        form.append('clave', pass);
-
-
-
-        const data = await fetchData(USER_API, 'logIn', form);
-
-        if(data.status){
-            console.log('Has iniciado sesión');
-            setLogueado(true);
-        } else {
-            console.log('Sorry');
-        }
-    }
 
     //Utilizamos nuestras fuentes
     Fonts();
@@ -47,23 +26,22 @@ const LoginScreen = ({ logueado, setLogueado}) => {
     const navigation = useNavigation();
 
     //Creamos una funcion que nos diriga para la pantalla que queremos.
-    const goToSingUp = () => {
+    const goToLogin = () => {
     //Identificamos a la pantalla con el name que se le puso en el StackNavigator.
-    navigation.navigate('SingUpScreen');
+    navigation.navigate('LoginScreen');
     };
-
-    //Creamos una funcion que nos diriga para la pantalla que queremos.
-    const goToRec1 = () => {
+    const goToRec2 = () => {
         //Identificamos a la pantalla con el name que se le puso en el StackNavigator.
-        navigation.navigate('RecoveryPass1');
+        navigation.navigate('RecoveryPass2');
         };
 
     return(
       <View style={styles.container}>
           <View style={styles.col}>
               <Image  style={styles.img} source={require('../../assets/huellitasLogo.png')}/>
-              <Text style={styles.title}>Iniciar sesión</Text>
-              <Text style={styles.subTitle}>¡Bienvenido de nuevo! Es un placer tenerte de nuevo</Text>
+              <Text style={styles.title}>Recupera tu contraseña</Text>
+              <Text style={styles.subTitle}>Ingresa el correo electrónico asociado a tu cuenta de Huellitas Pets para recibir un código
+              de recuperación.</Text>
               <View style={styles.inputBox}>
                   <View style={styles.input}>
                       <Text style={styles.inputText}>Correo electrónico</Text>
@@ -79,29 +57,14 @@ const LoginScreen = ({ logueado, setLogueado}) => {
                           onChangeText={setEmail}
                       />
                   </View>
-                  <View style={styles.input}>
-                      <Text style={styles.inputText}>Contraseña</Text>
-                      <TextInput
-                          activeOutlineColor='#c5c4c2'
-                          secureTextEntry={true}
-                          mode='outlined'
-                          outlineColor='#fff'
-                          style={styles.textInput}
-                          //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
-                          left={<TextInput.Icon icon="lock" />}
-                          value={pass}
-                          onChangeText={setPass}
-                      />
-                      <Text onPress={goToRec1} style={styles.pass}>¿Has olvídado tú contraseña?</Text>
-                  </View>
               </View>
           </View>
           <View style={styles.buttonBox}>
-              <CustomButton title='Iniciar sesión' colorText='white' buttonColor='#F4D35E' fontSize={16} onPress={Login}/>
+              <CustomButton title='Enviar código' colorText='white' buttonColor='#F4D35E' fontSize={16} onPress={goToRec2}/>
           </View>
           <View style={styles.row}>
-              <Text style={styles.text1}>¿No tienes cuenta?</Text>
-              <Text onPress={goToSingUp} style={styles.text2}>Registrar sesión</Text>
+              <Text style={styles.text1}>Volver</Text>
+              <Text onPress={goToLogin} style={styles.text2}>Iniciar sesión</Text>
           </View>
       </View>
     );
@@ -171,4 +134,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default LoginScreen;
+export default RecoveryPass1;

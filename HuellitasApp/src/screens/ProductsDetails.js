@@ -71,18 +71,21 @@ const ProductsDetails = () => {
             form.append('cupon', cupon);
 
             const data = await fetchData(PRODUCTOS_API, 'readCuponDisponible', form);
-            if (data.status === 1) {
+            if (data.status == 1 && data.dataset.mensaje == 'Cupón disponible') {
                 setIdCupon(data.dataset.id_cupon);
                 setPrecioProducto(precioProductoAntes - (precioProductoAntes * data.dataset.porcentaje_cupon / 100));
                 setDecorationText("line-through");
                 setPrecioProductoColor2("#00CC00"); // Cambia el color a verde cuando se aplica el cupón
                 //setPrecioProductoColor("#00CC00"); // Cambia el color a verde cuando se aplica el cupón
-            } else if (data.status === 2) {
+            } else if (data.status == 2) {
+                ToastNotification(2, 'cupon ya utilizado', true);
                 console.log('cupon ya utilizado');
-            } else if (data.status === 3) {
+            } else if (data.status == 3) {
+                ToastNotification(2, 'cupon vacio', true);
                 console.log('cupon vacio');
             } else {
-                console.log('Sorry, cai en el else');
+                ToastNotification(2, 'cupon ya utilizado', true);
+                console.log('cupon ya utilizado 2');
             }
         } catch (error) {
             console.log(error);
@@ -97,7 +100,10 @@ const ProductsDetails = () => {
             form.append('idCupon', idcupon);
 
             const data = await fetchData(PEDIDOS_API, 'createDetail', form);
-
+            console.log(data);
+            console.log('idProducto', idProducto);
+            console.log('cantidadProducto', quantity);
+            console.log('idCupon', idcupon);
             if (data.status) {
                 await ToastNotification(1, data.message, true);
                 navigation.navigate('Cart', {
