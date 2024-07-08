@@ -19,10 +19,12 @@ const HistoryCard = () => {
             if (response && response.status === 1 && response.dataset) {
                 setHistory(response.dataset);
             } else {
+                setHistory([]); // Asegúrate de limpiar el estado si no se encuentran datos
                 console.log('No se encontraron datos de historial de compras');
             }
         } catch (error) {
             console.error('Error al obtener el historial de compras:', error);
+            setHistory([]); // Limpia el estado en caso de error
         }
     };
 
@@ -51,28 +53,34 @@ const HistoryCard = () => {
 
     return (
         <View style={styles.container}>
-            <FlatList
-                data={history}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => handleCardPress(item)}>
-                        <View style={styles.section}>
-                            <Text style={styles.date}>{item.fecha}</Text>
-                            <View style={styles.card}>
-                                <Image source={icon} style={styles.icon} />
-                                <View style={styles.details}>
-                                    <Text style={styles.title}>Estado: {item.estado_pedido}</Text>
-                                    <Text style={styles.subtext}>
-                                        Cantidad: {item.cantidad} Unidades
-                                    </Text>
+            {history.length === 0 ? (
+                <View style={styles.noDataContainer}>
+                    <Text style={styles.noDataText}>Aun no se ha realizado ningun pedido...</Text>
+                </View>
+            ) : (
+                <FlatList
+                    data={history}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity onPress={() => handleCardPress(item)}>
+                            <View style={styles.section}>
+                                <Text style={styles.date}>{item.fecha}</Text>
+                                <View style={styles.card}>
+                                    <Image source={icon} style={styles.icon} />
+                                    <View style={styles.details}>
+                                        <Text style={styles.title}>Estado: {item.estado_pedido}</Text>
+                                        <Text style={styles.subtext}>
+                                            Cantidad: {item.cantidad} Unidades
+                                        </Text>
+                                    </View>
+                                    <Text style={styles.price}>${item.precio_total}</Text>
                                 </View>
-                                <Text style={styles.price}>${item.precio_total}</Text>
+                                <View style={styles.separator} />
                             </View>
-                            <View style={styles.separator} />
-                        </View>
-                    </TouchableOpacity>
-                )}
-            />
+                        </TouchableOpacity>
+                    )}
+                />
+            )}
             <OrderDetailsModal 
                 visible={showOrderModal} 
                 onClose={() => setShowOrderModal(false)} 
@@ -86,6 +94,15 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#FFFFFF',
+    },
+    noDataContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    noDataText: {
+        fontSize: 18,
+        color: '#666',
     },
     date: {
         fontSize: 18,
