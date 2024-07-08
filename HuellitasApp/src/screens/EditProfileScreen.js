@@ -16,10 +16,12 @@ import {DialogNotification, ToastNotification} from "../components/Alerts/AlertC
 import {AlertNotificationRoot, Dialog} from "react-native-alert-notification";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
+// Obtener las dimensiones de la ventana para ajustar el diseño
 const windowHeight = Dimensions.get('window').height;
 const width = Dimensions.get("window").width;
 
 const EditProfileScreen = () => {
+    // Estado para almacenar los datos del perfil
     const [profile, setProfile] = useState({});
 
     //Campos necesarios para date picker
@@ -40,6 +42,7 @@ const EditProfileScreen = () => {
     //Funcion para subir imagen desde la galeria y que se pueda mostrar.
     const [file, setFile] = useState(null);
 
+    // Función para seleccionar una imagen desde la galería
     const pickImage = async () => {
         const option = {
             mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -47,6 +50,7 @@ const EditProfileScreen = () => {
             quality: 1
         };
 
+        // Solicitar permisos para acceder a la galería
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
         if(status !== 'granted') {
@@ -165,6 +169,7 @@ const EditProfileScreen = () => {
         }
     }
 
+    // Efecto para cargar los datos del perfil al montar el componente
     useEffect(() => {
         setLoading(true)
         const fetchProfileData = async () => {
@@ -193,14 +198,18 @@ const EditProfileScreen = () => {
         fetchProfileData();
     }, []);
 
+    // Obtener la navegación
     const navigation = useNavigation();
 
+    // Función para navegar al perfil
     const goToProfile = () => {
         navigation.navigate('Profile', { updated: true });
     };
 
+    // Cargar las fuentes
     Fonts();
 
+    // Renderizado del componente
     return (
        <AlertNotificationRoot>
            <ScrollView contentContainerStyle={styles.scrollContainer}>
