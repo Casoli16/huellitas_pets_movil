@@ -19,7 +19,7 @@ const DeliveryScreen2 = ()=>{
                     <Image source={require('../../assets/buy.png')}/>
                 </View>
                 <Text style={styles.title}>Tu compra ha sido exitosa</Text>
-                <Text style={styles.subtitle}>Cuando tú pedido este cerca se te avisará al correo electrónico</Text>
+                <Text style={styles.subtitle}>Cuando tu pedido este cerca se te avisará al correo electrónico</Text>
                 <CustomButton title='Ir a mis pedidos' buttonColor='#F4D35E' colorText='#fff' fontSize={14} onPress={()=>{navigation.navigate('History')}}/>
             </View>
         </View>

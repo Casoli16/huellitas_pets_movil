@@ -89,7 +89,7 @@ const DeliveryScreen1 = ()=>{
                         <TextInput
                             mode="flat"
                             textColor={'black'}
-                            placeholder='Escribe tú nueva dirección'
+                            placeholder='Escribe tu nueva dirección'
                             activeOutlineColor={'#c5c2c2'}
                             outlineColor={'#fff'}
                             style={styles.input}
