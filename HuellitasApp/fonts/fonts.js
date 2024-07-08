@@ -4,7 +4,7 @@ import {Jost_100Thin, Jost_300Light, Jost_400Regular, Jost_500Medium, Jost_600Se
 import { useFonts } from "expo-font";
 
 const Fonts = () => {
-    //Colocamos las fuentes que vamos a utiliza
+    //Colocamos las fuentes que vamos a utilizar
     const [fontsLoaded] = useFonts({
         FredokaOne_400Regular,
         Jost_100Thin,

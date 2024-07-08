@@ -3,8 +3,8 @@ import {Image, View, StyleSheet, Text, Dimensions, ScrollView} from "react-nativ
 import Fonts from "../../../fonts/fonts";
 //Importamos la funcion fecthData, asi como tambien la variable SERVER_URL
 import fetchData, {SERVER_URL} from "../../../api/components";
-import {useEffect, useState} from "react";
-import {useNavigation} from "@react-navigation/native";
+import {useCallback, useEffect, useState} from "react";
+import {useFocusEffect, useNavigation} from "@react-navigation/native";
 
 // Obtiene el tamaño de la pantalla en la que este.
 const windowHeight = Dimensions.get('window').height;
@@ -67,9 +67,13 @@ const ProductsCards =  ({pet, search, category}) => {
 
     //Permite ejecutar la funcion fillCards cada vez que se cargue la pantalla, asi como tambien
     //cuando los valores de pet y search cambien.
-    useEffect(()=>{
-        fillCards();
-    },[pet, search, category])
+    useFocusEffect(
+        //Nos permite llamar a la funcion cada vez que state cambia.
+        useCallback(() => {
+            fillCards();
+        }, [pet, search, category])
+    );
+
 
     return(
         <View style={styles.container}>

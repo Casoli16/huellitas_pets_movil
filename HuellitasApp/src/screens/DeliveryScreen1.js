@@ -19,15 +19,18 @@ const DeliveryScreen1 = ()=>{
 
     //Api
     const API = 'services/public/pedidos.php';
+    //Declaracion de variables para la dirección actual y nueva dirección
     const [address, setAddress] = useState("");
     const [newAddress, setNewAddress] = useState("")
+    //Ocupamos la navegacion
     const navigation = useNavigation();
 
-
+    //Variables para el manejo de los modals
     const [visible, setVisible] = React.useState(false);
     const hideModal = () => setVisible(false);
     const showModal = () => setVisible(true);
 
+    //Peticion a la api para traernos la direccion actual del usuario
     const getAddress = async ()=> {
         const DATA = await fetchData(API, 'readDetail');
         if (DATA.status){
@@ -36,10 +39,12 @@ const DeliveryScreen1 = ()=>{
         }
     }
 
+    //Cuando se cargue la pantalla de llama a la funcion para traernos la direccion actual
     useEffect(() => {
         getAddress()
     }, []);
 
+    //Funcion que permite la actualizacion de la direccion cuando el cliente lo requiera
     const updateAddress = async () => {
         const form = new FormData();
         form.append('direccion', newAddress);
@@ -55,10 +60,12 @@ const DeliveryScreen1 = ()=>{
         }
     }
 
+    //Mensaje de confirmacion antes de finalizar un pedido.
     const confirmMessage = () => {
         DialogNotification(3, '¿Estás seguro de finalizar tú pedido?', 'Sí', ()=> {finishOrder()});
     }
 
+    //Funcion que permite finalizar un pedido.
     const finishOrder = async () => {
         const data = await fetchData(API, 'finishOrder');
         if(data.status){

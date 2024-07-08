@@ -104,6 +104,8 @@ const CartScreen = () => {
         if(newProducts[index].cantidad_detalle_pedido < (newProducts[index].cantidad_detalle_pedido + newProducts[index].existencia_producto)) {
             newProducts[index].cantidad_detalle_pedido += 1;
             setProducts(newProducts);
+        } else{
+            ToastNotification(3, 'Sobrepasaste el límite de existencias');
         }
 
         const updateCount = newProducts[index];

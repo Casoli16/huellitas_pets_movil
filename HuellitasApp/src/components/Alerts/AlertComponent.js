@@ -13,6 +13,7 @@ export const ToastNotification = (type, message, autoClose) => {
 
     //Evaluamos el tipo de mensaje que se recibio
     switch (type){
+        //Mensaje de exito
         case 1:
             action = ALERT_TYPE.SUCCESS;
             text = message;
@@ -20,6 +21,7 @@ export const ToastNotification = (type, message, autoClose) => {
             style = styles.text1;
             boolean = autoClose;
             break;
+        //Mensaje de error
         case 2:
             action = ALERT_TYPE.DANGER;
             text = message;
@@ -27,6 +29,7 @@ export const ToastNotification = (type, message, autoClose) => {
             style = styles.text2;
             boolean = autoClose;
             break;
+        //Mensaje de advertencia
         case 3:
             action = ALERT_TYPE.WARNING;
             text = message;
@@ -59,6 +62,7 @@ export const DialogNotification = (type, message, button, functions) => {
 
     //Evaluamos el tipo de mensaje que se recibio
     switch (type){
+        //Mensaje de exito
         case 1:
             action = ALERT_TYPE.SUCCESS;
             text = message;
@@ -66,12 +70,14 @@ export const DialogNotification = (type, message, button, functions) => {
             buttonText = button;
             onPress = functions;
             break;
+        //Mensaje de error
         case 2:
             action = ALERT_TYPE.DANGER;
             text = message;
             title = 'Error';
             buttonText = button;
             break;
+        //Mensaje de advertencia
         case 3:
             action = ALERT_TYPE.WARNING;
             text = message;

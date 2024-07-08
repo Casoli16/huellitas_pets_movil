@@ -6,8 +6,10 @@ import {useNavigation} from "@react-navigation/native";
 const windowWidth = Dimensions.get('window').width;
 
 const DeliveryScreen2 = ()=>{
+    //Cargamos la fuentes a utilizar
     Fonts();
 
+    //Manejo de la navegacion
     const navigation = useNavigation();
 
     return(
