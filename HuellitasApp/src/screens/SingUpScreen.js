@@ -1,3 +1,4 @@
+// Importamos las dependencias necesarias de React y otras librerías
 import React, { useState } from 'react';
 import fetchData, {SERVER_URL} from '../../api/components';
 
@@ -21,7 +22,7 @@ import {AlertNotificationRoot, Dialog} from "react-native-alert-notification";
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
-
+// Definición del componente de pantalla de registro
 const SingUpScreen = () => {
     const [date, setDate] = useState(new Date());
     const [mode, setMode] = useState('date');
@@ -46,6 +47,7 @@ const SingUpScreen = () => {
     Codigo para mostrar el datetimepicker
     */
 
+    // Manejo del cambio de fecha
     const onChange = (event, selectedDate) => {
         const currentDate = selectedDate;
         setShow(false);
@@ -61,6 +63,7 @@ const SingUpScreen = () => {
         setBirthdate(fechaNueva)
     };
 
+    // Función para mostrar el selector de fecha
     const showMode = (currentMode) => {
         setShow(true);
         setMode(currentMode);
