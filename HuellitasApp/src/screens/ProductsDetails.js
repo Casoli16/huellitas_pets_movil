@@ -8,12 +8,12 @@ import { useNavigation } from "@react-navigation/native";
 import { ToastNotification } from "../components/Alerts/AlertComponent";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {LoadingDots} from "@mrakesh0608/react-native-loading-dots";
-import {AlertNotificationRoot} from "react-native-alert-notification";
 
 const windowHeight = Dimensions.get('window').height;
 const width = Dimensions.get("window").width;
 
 const ProductsDetails = () => {
+    // Se mantiene la URL de las APIs en una constante
     const PRODUCTOS_API = 'services/public/productos.php';
     const PEDIDOS_API = 'services/public/pedidos.php';
     const navigation = useNavigation();
@@ -21,10 +21,11 @@ const ProductsDetails = () => {
     const route = useRoute();
     const { idProducto } = route.params;
 
+    //Se declaran cosntantes para el estado de los datos del producto
     const [data, setData] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [messageCupon, setmessageCupon] = useState("");
-    const [messageCuponColor, setmessageCuponColor] = useState("FFF");
+    const [messageCuponColor, setmessageCuponColor] = useState("FFF"); // Color inicial blanco
     const [messageCuponFont, setmessageCuponFont] = useState(13);
     const [cupon, setCupon] = useState("");
     const [idcupon, setIdCupon] = useState(0);
@@ -39,7 +40,9 @@ const ProductsDetails = () => {
 
     const [loading, setLoading] = useState(true);
 
+    // Función para obtener los datos del producto
     const fetchProducto = async () => {
+        // Se establece el estado de carga en true
         setLoading(true)
         try {
             const FORM = new FormData();
@@ -53,7 +56,7 @@ const ProductsDetails = () => {
                 setIdCupon(0);
                 setPrecioProductoColor2("#FFF"); // Color inicial blanco
                 setPrecioProductoColor("#7C7979"); // Color inicial gris
-                setLoading(false);
+                setLoading(false); // Se establece el estado de carga en false
                 setmessageCupon("");
                 setmessageCuponColor("FFF");
                 setmessageCuponFont(1);
@@ -65,19 +68,26 @@ const ProductsDetails = () => {
         }
     };
 
+    //Función que se ejecuta cuando el componente se carga
     useFocusEffect(
         React.useCallback(() => {
+            //Se manda a llamar la función que ocurrirá cuando el componente se cargue
             setQuantity(1)
             fetchProducto();
         }, [idProducto])
     );
 
+    // Función para enviar el código del cupón
+    // Esta función se encarga de comprobar si el código del cupón al servidor es válido
+    //En caso de que sea valido se mostrará el nuevo precio del producto, algunos mensajes y se cambiará el color del precio
+    //En caso de que no sea valido se mostrará un mensaje de error y se cambiará el color del precio en caso de que sea necesario
     const enviarCodigo = async () => {
         try {
             const form = new FormData();
             form.append('cupon', cupon);
 
             const data = await fetchData(PRODUCTOS_API, 'readCuponDisponible', form);
+            //Condicional cuando el cupón es válido y se puede aplicar
             if (data.status == 1 && data.dataset.mensaje == 'Cupón disponible') {
                 setIdCupon(data.dataset.id_cupon);
                 setPrecioProducto(precioProductoAntes - (precioProductoAntes * data.dataset.porcentaje_cupon / 100));
@@ -87,7 +97,9 @@ const ProductsDetails = () => {
                 setmessageCuponColor("#00CC00");
                 setmessageCupon(data.dataset.mensaje + " del " + data.dataset.porcentaje_cupon + "% de descuento");
                 //setPrecioProductoColor("#00CC00"); // Cambia el color a verde cuando se aplica el cupón
-            } else if (data.status == 2) {
+            } 
+            //Condicional cuando el cupón ya ha sido utilizado
+            else if (data.status == 2) {
                 setIdCupon(0);
                 console.log('cupon ya utilizado');
                 setmessageCuponColor("#ff0000");
@@ -95,7 +107,9 @@ const ProductsDetails = () => {
                 setDecorationText("none");
                 setPrecioProductoColor2("#FFF"); 
                 setPrecioProducto(0);
-            } else if (data.status == 3) {
+            } 
+            //Condición cuando el cupón esta vacío
+            else if (data.status == 3) {
                 setIdCupon(0);
                 setmessageCuponFont(13);
                 setmessageCuponColor("#ff0000");
@@ -104,7 +118,9 @@ const ProductsDetails = () => {
                 setPrecioProductoColor2("#FFF"); 
                 console.log('cupon vacio');
                 setPrecioProducto(0);
-            } else {
+            } 
+            //Condición cuando el cupón no existe o ya ha sido utilizado
+            else {
                 setIdCupon(0);
                 setmessageCuponFont(13);
                 setmessageCuponColor("#ff0000");
@@ -119,6 +135,8 @@ const ProductsDetails = () => {
         }
     };
 
+    //Función para enviar el producto al carrito
+    // Esta función redirige al usuario a la pantalla del carrito y muestra un mensaje de éxito o error
     const SendToCart = async () => {
         try {
             const form = new FormData();
@@ -133,6 +151,7 @@ const ProductsDetails = () => {
             console.log('idCupon', idcupon);
             if (data.status) {
                 await ToastNotification(1, data.message, true);
+                // Se redirige al usuario a la pantalla del carrito
                 navigation.navigate('Cart', {
                     state: true
                 });
@@ -144,15 +163,16 @@ const ProductsDetails = () => {
         }
     };
 
+    //Función para aumentar el input cuando se dé click al botón de más
     const handleIncrement = () => {
         if (quantity < data.existencia_producto) {
             setQuantity(quantity + 1);
-        } else if(quantity === data.existencia_producto){
-            ToastNotification(3, 'Sobrepasaste el límite de existencias');
         }
-
     };
 
+    //Función para compartir el producto
+    // Esta función permite compartir el producto a través de las aplicaciones disponibles en el dispositivo
+    // Esta función solo tiene la capacidad de compartir texto, por lo que se comparte el nombre del producto, la marca, la categoría y el precio
     const share = async () => {
         try {
             const result = await Share.share({
@@ -172,17 +192,19 @@ const ProductsDetails = () => {
         }
     };
 
-
+    //Función para disminuir el input cuando se dé click al botón de menos
     const handleDecrement = () => {
         if (quantity > 1) {
             setQuantity(quantity - 1);
         }
     };
 
+    //Función para manejar la calificación del usuario
     const handleRatingPress = (rating) => {
         setUserRating(rating);
     };
 
+    //Función para manejar el cambio en el comentario del usuario
     const handleCommentChange = (text) => {
         setComment(text);
     };
@@ -196,6 +218,7 @@ const ProductsDetails = () => {
 
     return (
         loading ? (
+            //Pantalla loading que se cargará en lo que la API termina de cargar
                 <View style={styles.loading}>
                     <LoadingDots
                         animation={"typing"}
@@ -205,119 +228,121 @@ const ProductsDetails = () => {
                     <Text style={styles.loadingText}>Cargando...</Text>
                 </View>
             ):(
-                <AlertNotificationRoot>
-                    <ScrollView contentContainerStyle={styles.container}>
-                        <View style={styles.imageContainer}>
-                            <ImageBackground
-                                style={styles.image}
-                                source={{ uri: `${SERVER_URL}images/productos/${data.imagen_producto}` }}
-                            >
-                                <TouchableOpacity onPress={share}>
-                                    <View style={styles.circle2}>
-                                        <Ionicons name="share-social-sharp" size={25} color="#F29E20" />
-                                    </View>
-                                </TouchableOpacity>
-                            </ImageBackground>
-                        </View>
-                        <Text style={styles.title}>{data.nombre_producto}</Text>
-                        <Text style={styles.brand}>{data.nombre_marca}</Text>
-                        <View style={styles.priceCategoryContainer}>
-                            <View style={styles.alignNew}>
-                                <Text style={[styles.price, { color: precioProductoColor, textDecorationLine: decorationText }]}>${data.precio_producto}</Text>
-                                <Text style={[styles.price, { color: precioProductoColor2 }]}>${precioProducto}</Text>
-                            </View>
-                            <Text style={styles.category}>{data.nombre_categoria}</Text>
-                        </View>
-                        <Text style={styles.descriptionTittle}>Descripción</Text>
-                        <Text style={styles.description}>{data.descripcion_producto}</Text>
-                        <View style={styles.buttonContent}>
-                            <View style={styles.quantityContainer}>
-                                <TouchableOpacity onPress={handleDecrement} style={styles.quantityButton}>
-                                    <Text style={styles.quantityButtonText}>-</Text>
-                                </TouchableOpacity>
-                                <TextInput
-                                    style={styles.quantityInput}
-                                    value={String(quantity)}
-                                    keyboardType="numeric"
-                                    maxLength={String(data.existencia_producto).length}
-                                    onChangeText={(text) => {
-                                        const value = Math.max(1, Math.min(data.existencia_producto, parseInt(text) || 1));
-                                        setQuantity(value);
-                                    }}
-                                />
-                                <TouchableOpacity onPress={handleIncrement} style={styles.quantityButton}>
-                                    <Text style={styles.quantityButtonText}>+</Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            <TouchableOpacity style={styles.button} onPress={SendToCart}>
-                                <View style={styles.buttonContent}>
-                                    <View style={styles.circle}>
-                                        <Ionicons name="cart-outline" size={25} color="#000" />
-                                    </View>
-                                    <Text style={styles.buttonText}>Añadir al carrito</Text>
+                //Contenido con datos de la API
+                <ScrollView contentContainerStyle={styles.container}>
+                    <View style={styles.imageContainer}>
+                        {
+                        /* Imagen del producto*/
+                        }
+                        <ImageBackground
+                            style={styles.image}
+                            source={{ uri: `${SERVER_URL}images/productos/${data.imagen_producto}` }}
+                        >
+                            <TouchableOpacity onPress={share}>
+                                <View style={styles.circle2}>
+                                    <Ionicons name="share-social-sharp" size={25} color="#F29E20" />
                                 </View>
                             </TouchableOpacity>
+                        </ImageBackground>
+                    </View>
+                    <Text style={styles.title}>{data.nombre_producto}</Text>
+                    <Text style={styles.brand}>{data.nombre_marca}</Text>
+                    <View style={styles.priceCategoryContainer}>
+                        <View style={styles.alignNew}>
+                            <Text style={[styles.price, { color: precioProductoColor, textDecorationLine: decorationText }]}>${data.precio_producto}</Text>
+                            <Text style={[styles.price, { color: precioProductoColor2 }]}>${precioProducto}</Text>
                         </View>
-                        <View style={styles.cuponContent}>
-                            <Ionicons name="pricetags" size={26} color="#F29E20" />
-                            <View style={styles.align}>
-                                <Text style={styles.boldText}>¿Tienes un cupón de descuento?</Text>
-                                <Text style={styles.normalText}>Podrás añadirlo en la parte de abajo.</Text>
-                            </View>
-                        </View>
-                        <View style={styles.inputContent}>
+                        <Text style={styles.category}>{data.nombre_categoria}</Text>
+                    </View>
+                    <Text style={styles.descriptionTittle}>Descripción</Text>
+                    <Text style={styles.description}>{data.descripcion_producto}</Text>
+                    <View style={styles.buttonContent}>
+                        <View style={styles.quantityContainer}>
+                            <TouchableOpacity onPress={handleDecrement} style={styles.quantityButton}>
+                                <Text style={styles.quantityButtonText}>-</Text>
+                            </TouchableOpacity>
                             <TextInput
-                                style={styles.codigoInput}
-                                value={cupon}
-                                keyboardType="default"
-                                onChangeText={(text) => setCupon(text)}
+                                style={styles.quantityInput}
+                                value={String(quantity)}
+                                keyboardType="numeric"
+                                maxLength={String(data.existencia_producto).length}
+                                onChangeText={(text) => {
+                                    const value = Math.max(1, Math.min(data.existencia_producto, parseInt(text) || 1));
+                                    setQuantity(value);
+                                }}
                             />
-
-                            <TouchableOpacity onPress={enviarCodigo}>
-                                <Ionicons name="send" size={28} color="#000" />
+                            <TouchableOpacity onPress={handleIncrement} style={styles.quantityButton}>
+                                <Text style={styles.quantityButtonText}>+</Text>
                             </TouchableOpacity>
+                        </View>
 
-                        </View>
-                        <Text style={[styles.brand2, { color: messageCuponColor }, {fontSize: messageCuponFont}]}>{messageCupon}</Text>
-                        <View style={styles.valorationContainer}>
-                            <Text style={styles.TitleValoration}>Reseñas</Text>
-                            <View style={styles.ratingContainer}>
-                                <Text style={styles.ratingTitle}>Tu puntuación sobre este producto</Text>
-                                <View style={styles.starsContainer}>
-                                    {[...Array(5)].map((_, index) => (
-                                        <TouchableOpacity key={index} onPress={() => handleRatingPress(index + 1)}>
-                                            <Image
-                                                style={styles.star}
-                                                source={index < userRating ? require('../../assets/star_filled.png') : require('../../assets/star_empty.png')}
-                                            />
-                                        </TouchableOpacity>
-                                    ))}
+                        <TouchableOpacity style={styles.button} onPress={SendToCart}>
+                            <View style={styles.buttonContent}>
+                                <View style={styles.circle}>
+                                    <Ionicons name="cart-outline" size={25} color="#000" />
                                 </View>
-                                <TextInput
-                                    style={styles.commentInput}
-                                    placeholder="Escribe un comentario..."
-                                    multiline={true}
-                                    value={comment}
-                                    onChangeText={handleCommentChange}
-                                />
-                                <TouchableOpacity style={styles.submitButton} onPress={handleSubmitReview}>
-                                    <Text style={styles.submitButtonText}>Enviar reseña</Text>
-                                </TouchableOpacity>
+                                <Text style={styles.buttonText}>Añadir al carrito</Text>
                             </View>
-                            <View style={styles.separator} />
-                            <View style={styles.commentsContainer}>
-                                <Text style={styles.TitleValoration}>Comentarios</Text>
-                                <CommentBox
-                                    author="CuidadoraDeAnimales21"
-                                    date="10 de enero del 2024"
-                                    comment="La comida le gustó mucho a mi perro, creo que es su favorita, la recomiendo mucho, espero a sus cachorros les guste tanto como al mío :)"
-                                    rating={4}
-                                />
-                            </View>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.cuponContent}>
+                        <Ionicons name="pricetags" size={26} color="#F29E20" />
+                        <View style={styles.align}>
+                            <Text style={styles.boldText}>¿Tienes un cupón de descuento?</Text>
+                            <Text style={styles.normalText}>Podrás añadirlo en la parte de abajo.</Text>
                         </View>
-                    </ScrollView>
-                </AlertNotificationRoot>
+                    </View>
+                    <View style={styles.inputContent}>
+                        <TextInput
+                            style={styles.codigoInput}
+                            value={cupon}
+                            keyboardType="default"
+                            onChangeText={(text) => setCupon(text)}
+                        />
+
+                        <TouchableOpacity onPress={enviarCodigo}>
+                            <Ionicons name="send" size={28} color="#000" />
+                        </TouchableOpacity>
+
+                    </View>
+                    <Text style={[styles.brand2, { color: messageCuponColor }, {fontSize: messageCuponFont}]}>{messageCupon}</Text>
+                    <View style={styles.valorationContainer}>
+                        <Text style={styles.TitleValoration}>Reseñas</Text>
+                        <View style={styles.ratingContainer}>
+                            <Text style={styles.ratingTitle}>Tu puntuación sobre este producto</Text>
+                            <View style={styles.starsContainer}>
+                                {[...Array(5)].map((_, index) => (
+                                    <TouchableOpacity key={index} onPress={() => handleRatingPress(index + 1)}>
+                                        <Image
+                                            style={styles.star}
+                                            source={index < userRating ? require('../../assets/star_filled.png') : require('../../assets/star_empty.png')}
+                                        />
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                            <TextInput
+                                style={styles.commentInput}
+                                placeholder="Escribe un comentario..."
+                                multiline={true}
+                                value={comment}
+                                onChangeText={handleCommentChange}
+                            />
+                            <TouchableOpacity style={styles.submitButton} onPress={handleSubmitReview}>
+                                <Text style={styles.submitButtonText}>Enviar reseña</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.separator} />
+                        <View style={styles.commentsContainer}>
+                            <Text style={styles.TitleValoration}>Comentarios</Text>
+                            <CommentBox
+                                author="CuidadoraDeAnimales21"
+                                date="10 de enero del 2024"
+                                comment="La comida le gustó mucho a mi perro, creo que es su favorita, la recomiendo mucho, espero a sus cachorros les guste tanto como al mío :)"
+                                rating={4}
+                            />
+                        </View>
+                    </View>
+                </ScrollView>
             )
 
     );
