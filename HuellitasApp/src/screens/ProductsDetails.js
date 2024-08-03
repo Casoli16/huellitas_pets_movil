@@ -37,7 +37,10 @@ const ProductsDetails = () => {
 
     const [userRating, setUserRating] = useState(0); // Estado para manejar la calificación del usuario
     const [comment, setComment] = useState(""); // Estado para manejar el comentario del usuario
+    const [date, setDate] = useState(""); // Estado para manejar el comentario del usuario
+    const [user, setUser] = useState(""); // Estado para manejar el comentario del usuario
 
+    const [comments, setComments] = useState([]); // Estado para manejar la lista de comentarios
     const [loading, setLoading] = useState(true);
 
     // Función para obtener los datos del producto
@@ -68,12 +71,34 @@ const ProductsDetails = () => {
         }
     };
 
+        const fetchComentarios = async () => {
+            setLoading(true);
+            try {
+            const FORM = new FormData();
+            FORM.append('idProducto', idProducto);
+            const datass = await fetchData(PRODUCTOS_API, 'readComentarios', FORM);
+            if (datass.status === 1 && datass.dataset) {
+                console.log('Comentarios:', datass.dataset); // Agrega esta línea
+                setComments(datass.dataset);
+                setLoading(false);
+            } else {
+                console.log('Cuando status es 0 ', datass);
+                setComments([]); // Limpiar comentarios si la respuesta no tiene datos
+                setLoading(false); // Terminar la carga si no hay datos
+            }
+            } catch (error) {
+            console.error('Error al obtener los comentarios:', error);
+            }
+        };
+        
+
     //Función que se ejecuta cuando el componente se carga
     useFocusEffect(
         React.useCallback(() => {
             //Se manda a llamar la función que ocurrirá cuando el componente se cargue
             setQuantity(1)
             fetchProducto();
+            fetchComentarios();
         }, [idProducto])
     );
 
@@ -129,6 +154,32 @@ const ProductsDetails = () => {
                 setPrecioProductoColor2("#FFF"); 
                 console.log('cupon ya utilizado 2');
                 setPrecioProducto(0);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    //Función para enviar el producto al carrito
+    // Esta función redirige al usuario a la pantalla del carrito y muestra un mensaje de éxito o error
+    const SendComentario = async () => {
+        try {
+            const form = new FormData();
+            form.append('idProducto', idProducto);
+            form.append('comentarioValoracion', comment);
+            form.append('calificacionValoracion', userRating);
+
+            const data = await fetchData(PRODUCTOS_API, 'createValoracion', form);
+            console.log(data);
+            console.log('idProducto', idProducto);
+            console.log('comentarioValoracion', comment);
+            console.log('calificacionValoracion', userRating);
+            if (data.status) {
+                ToastNotification(1, data.message, true);
+                setComment("");
+                setUserRating(0);
+            } else {
+                ToastNotification(2, data.error, true);
             }
         } catch (error) {
             console.log(error);
@@ -208,13 +259,6 @@ const ProductsDetails = () => {
     const handleCommentChange = (text) => {
         setComment(text);
     };
-
-    const handleSubmitReview = () => {
-        console.log("Rating:", userRating);
-        console.log("Comment:", comment);
-        // Aquí puedes enviar la calificación y el comentario al servidor
-    };
-
 
     return (
         loading ? (
@@ -327,20 +371,27 @@ const ProductsDetails = () => {
                                 value={comment}
                                 onChangeText={handleCommentChange}
                             />
-                            <TouchableOpacity style={styles.submitButton} onPress={handleSubmitReview}>
+                            <TouchableOpacity style={styles.submitButton} onPress={SendComentario}>
                                 <Text style={styles.submitButtonText}>Enviar reseña</Text>
                             </TouchableOpacity>
                         </View>
                         <View style={styles.separator} />
                         <View style={styles.commentsContainer}>
-                            <Text style={styles.TitleValoration}>Comentarios</Text>
-                            <CommentBox
-                                author="CuidadoraDeAnimales21"
-                                date="10 de enero del 2024"
-                                comment="La comida le gustó mucho a mi perro, creo que es su favorita, la recomiendo mucho, espero a sus cachorros les guste tanto como al mío :)"
-                                rating={4}
-                            />
-                        </View>
+                        <Text style={styles.TitleValoration}>Comentarios</Text>
+                        {comments.length > 0 ? (
+                            comments.map((comment, index) => (
+                                <CommentBox
+                                    key={index}
+                                    author={comment.nombre_cliente}
+                                    date={comment.fecha_formato}
+                                    comment={comment.comentario}
+                                    rating={comment.calificacion}
+                                />
+                            ))
+                        ) : (
+                            <Text style={styles.noComments}>Aun no se calificado este producto.</Text>
+                        )}
+                    </View>
                     </View>
                 </ScrollView>
             )
@@ -354,6 +405,17 @@ const styles = StyleSheet.create({
         alignItems: "center",
         padding: 10,
         backgroundColor: "#fff"
+    },
+    TitleValoration: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    noComments: {
+        textAlign: 'center',
+        fontSize: 14,
+        color: '#888',
+        marginVertical: 20,
     },
     loading: {
         height: windowHeight * 0.6,
