@@ -7,6 +7,7 @@ import CommentBox from '../components/CommentBox';
 import { useNavigation } from "@react-navigation/native";
 import { ToastNotification } from "../components/Alerts/AlertComponent";
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {AlertNotificationRoot, Dialog} from "react-native-alert-notification";
 import {LoadingDots} from "@mrakesh0608/react-native-loading-dots";
 
 const windowHeight = Dimensions.get('window').height;
@@ -261,7 +262,8 @@ const ProductsDetails = () => {
     };
 
     return (
-        loading ? (
+        <AlertNotificationRoot>
+        {loading ? (
             //Pantalla loading que se cargará en lo que la API termina de cargar
                 <View style={styles.loading}>
                     <LoadingDots
@@ -394,8 +396,8 @@ const ProductsDetails = () => {
                     </View>
                     </View>
                 </ScrollView>
-            )
-
+            )}
+        </AlertNotificationRoot>
     );
 };
 
