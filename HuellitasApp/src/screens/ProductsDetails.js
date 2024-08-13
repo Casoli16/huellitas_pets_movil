@@ -408,11 +408,6 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: "#fff"
     },
-    TitleValoration: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
     noComments: {
         textAlign: 'center',
         fontSize: 14,
