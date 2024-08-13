@@ -149,6 +149,18 @@ const CartScreen = () => {
         }
     }
 
+    const goToDeliverie = () => {
+        if(hasProducts !== false){
+            navigation.navigate('Delivery1')
+        }else{
+            DialogNotification(
+                3,
+                'Agrega un producto antes de ir a pagar',
+                'Ok');
+        }
+
+    }
+
     return(
         <AlertNotificationRoot>
             <View style={styles.container}>
@@ -221,7 +233,7 @@ const CartScreen = () => {
                         <Text style={styles.totalText}>Total:</Text>
                         <Text style={styles.totalPrice}>${totaPrice}</Text>
                     </View>
-                    <CustomButton title='Ir a pagar' buttonColor='#EE964B' fontSize={18} colorText='white' onPress={()=>{navigation.navigate('Delivery1')}}/>
+                    <CustomButton title='Ir a pagar' buttonColor='#EE964B' fontSize={18} colorText='white' onPress={()=> goToDeliverie()}/>
                 </View>
             </View>
         </AlertNotificationRoot>

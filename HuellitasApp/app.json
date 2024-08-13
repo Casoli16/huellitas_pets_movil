@@ -4,7 +4,7 @@
     "slug": "movilApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/huellitasLogo.png",
+    "icon": "./assets/logoCuadrado.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splashScreen.png",
