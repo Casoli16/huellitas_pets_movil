@@ -164,6 +164,12 @@ const ProductsDetails = () => {
     //Función para enviar el producto al carrito
     // Esta función redirige al usuario a la pantalla del carrito y muestra un mensaje de éxito o error
     const SendComentario = async () => {
+        if (!comment.trim()) {
+            // Muestra un mensaje de error si el comentario está vacío
+            ToastNotification(2, "El comentario no puede estar vacío", true);
+            return; // Sale de la función sin hacer nada más
+        }
+
         try {
             const form = new FormData();
             form.append('idProducto', idProducto);
