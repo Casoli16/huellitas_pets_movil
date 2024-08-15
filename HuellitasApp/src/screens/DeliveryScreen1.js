@@ -46,6 +46,12 @@ const DeliveryScreen1 = ()=>{
 
     //Funcion que permite la actualizacion de la direccion cuando el cliente lo requiera
     const updateAddress = async () => {
+
+        if(!newAddress.trim()){
+            ToastNotification(3, 'La dirección no puede quedar vacía. Por favor completa este campo.', true);
+            return;
+        }
+
         const form = new FormData();
         form.append('direccion', newAddress);
 

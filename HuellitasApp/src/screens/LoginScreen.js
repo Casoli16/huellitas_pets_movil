@@ -9,6 +9,8 @@ import Fonts from "../../fonts/fonts";
 import CustomButton from "../components/CustomeButton";
 //Importamos la navegacion
 import {useNavigation} from "@react-navigation/native";
+import {AlertNotificationRoot} from "react-native-alert-notification";
+import {ToastNotification} from "../components/Alerts/AlertComponent";
 
 // Obtiene el ancho y alto de la pantalla en la que se esta cargando la app
 const width = Dimensions.get("window").width;
@@ -23,20 +25,28 @@ const LoginScreen = ({ logueado, setLogueado}) => {
     const USER_API = 'services/public/clientes.php';
 
     const Login = async () => {
-        //Creamos el forms que mandara los datos a la api
-        const form = new FormData();
-        form.append('correo', email);
-        form.append('clave', pass);
+        try {
+            // Validación de campos vacíos
+            if (!email.trim() || !pass.trim()) {
+                ToastNotification(3, 'Por favor complete todos los campos.', true);
+                return;
+            }
 
+            //Creamos el forms que mandara los datos a la api
+            const form = new FormData();
+            form.append('correo', email);
+            form.append('clave', pass);
 
+            const data = await fetchData(USER_API, 'logIn', form);
 
-        const data = await fetchData(USER_API, 'logIn', form);
-
-        if(data.status){
-            console.log('Has iniciado sesión');
-            setLogueado(true);
-        } else {
-            console.log('Sorry');
+            if(data.status){
+                ToastNotification(1, data.message, true);
+                setLogueado(true);
+            } else {
+                ToastNotification(2, data.error, true);
+            }
+        } catch (error){
+            return ToastNotification(2, 'Ocurrió un error inesperado', true);
         }
     }
 
@@ -59,51 +69,53 @@ const LoginScreen = ({ logueado, setLogueado}) => {
         };
 
     return(
-      <View style={styles.container}>
-          <View style={styles.col}>
-              <Image  style={styles.img} source={require('../../assets/huellitasLogo.png')}/>
-              <Text style={styles.title}>Iniciar sesión</Text>
-              <Text style={styles.subTitle}>¡Bienvenido de nuevo! Es un placer tenerte de nuevo</Text>
-              <View style={styles.inputBox}>
-                  <View style={styles.input}>
-                      <Text style={styles.inputText}>Correo electrónico</Text>
-                      <TextInput
-                          activeOutlineColor='#c5c4c2'
-                          textContentType='emailAddress'
-                          mode='outlined'
-                          outlineColor='#fff'
-                          style={styles.textInput}
-                          //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
-                          left={<TextInput.Icon icon="email" />}
-                          value={email}
-                          onChangeText={setEmail}
-                      />
-                  </View>
-                  <View style={styles.input}>
-                      <Text style={styles.inputText}>Contraseña</Text>
-                      <TextInput
-                          activeOutlineColor='#c5c4c2'
-                          secureTextEntry={true}
-                          mode='outlined'
-                          outlineColor='#fff'
-                          style={styles.textInput}
-                          //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
-                          left={<TextInput.Icon icon="lock" />}
-                          value={pass}
-                          onChangeText={setPass}
-                      />
-                      <Text onPress={goToRec1} style={styles.pass}>¿Has olvídado tu contraseña?</Text>
+      <AlertNotificationRoot>
+          <View style={styles.container}>
+              <View style={styles.col}>
+                  <Image  style={styles.img} source={require('../../assets/huellitasLogo.png')}/>
+                  <Text style={styles.title}>Iniciar sesión</Text>
+                  <Text style={styles.subTitle}>¡Bienvenido de nuevo! Es un placer tenerte de nuevo</Text>
+                  <View style={styles.inputBox}>
+                      <View style={styles.input}>
+                          <Text style={styles.inputText}>Correo electrónico</Text>
+                          <TextInput
+                              activeOutlineColor='#c5c4c2'
+                              textContentType='emailAddress'
+                              mode='outlined'
+                              outlineColor='#fff'
+                              style={styles.textInput}
+                              //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
+                              left={<TextInput.Icon icon="email" />}
+                              value={email}
+                              onChangeText={setEmail}
+                          />
+                      </View>
+                      <View style={styles.input}>
+                          <Text style={styles.inputText}>Contraseña</Text>
+                          <TextInput
+                              activeOutlineColor='#c5c4c2'
+                              secureTextEntry={true}
+                              mode='outlined'
+                              outlineColor='#fff'
+                              style={styles.textInput}
+                              //Ver nombre de iconos en https://oblador.github.io/react-native-vector-icons/
+                              left={<TextInput.Icon icon="lock" />}
+                              value={pass}
+                              onChangeText={setPass}
+                          />
+                          <Text onPress={goToRec1} style={styles.pass}>¿Has olvídado tu contraseña?</Text>
+                      </View>
                   </View>
               </View>
+              <View style={styles.buttonBox}>
+                  <CustomButton title='Iniciar sesión' colorText='white' buttonColor='#F4D35E' fontSize={16} onPress={Login}/>
+              </View>
+              <View style={styles.row}>
+                  <Text style={styles.text1}>¿No tienes cuenta?</Text>
+                  <Text onPress={goToSingUp} style={styles.text2}>Registrar sesión</Text>
+              </View>
           </View>
-          <View style={styles.buttonBox}>
-              <CustomButton title='Iniciar sesión' colorText='white' buttonColor='#F4D35E' fontSize={16} onPress={Login}/>
-          </View>
-          <View style={styles.row}>
-              <Text style={styles.text1}>¿No tienes cuenta?</Text>
-              <Text onPress={goToSingUp} style={styles.text2}>Registrar sesión</Text>
-          </View>
-      </View>
+      </AlertNotificationRoot>
     );
 }
 

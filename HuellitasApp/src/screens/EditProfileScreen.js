@@ -124,6 +124,11 @@ const EditProfileScreen = () => {
     const UpdateProfile = async () => {
         try {
 
+            if(!name.trim() || !lastName.trim() || !email.trim() || !direction.trim() || !dui.trim() || !birthdate.trim() || !phone.trim() ) {
+                ToastNotification(3, 'Por favor complete todos los campos.');
+                return;
+            }
+
             // Si todos los campos son válidos, proceder con la creación del usuario
             //Creamos el forms que mandara los datos a la api
             const form = new FormData();

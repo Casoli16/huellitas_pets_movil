@@ -35,6 +35,7 @@ const ProductsDetails = () => {
     const [precioProductoAntes, setPrecioProductoAntes] = useState(0);
     const [decorationText, setDecorationText] = useState("none");
     const [precioProductoColor2, setPrecioProductoColor2] = useState("#FFF"); // Color inicial gris
+    const [existencia, setExistencia] = useState('');
 
     const [userRating, setUserRating] = useState(0); // Estado para manejar la calificación del usuario
     const [comment, setComment] = useState(""); // Estado para manejar el comentario del usuario
@@ -56,6 +57,7 @@ const ProductsDetails = () => {
                 setData(data1.dataset[0]);
                 setPrecioProducto(data1.dataset[0].precio_producto);
                 setPrecioProductoAntes(data1.dataset[0].precio_producto);
+                setExistencia(data1.dataset[0].existencia_producto);
                 setDecorationText("none");
                 setIdCupon(0);
                 setPrecioProductoColor2("#FFF"); // Color inicial blanco
@@ -213,6 +215,8 @@ const ProductsDetails = () => {
                 navigation.navigate('Cart', {
                     state: true
                 });
+            } else if(data.exception) {
+                await ToastNotification(3, data.exception, true);
             } else {
                 await ToastNotification(3, data.error, true);
             }
@@ -308,6 +312,10 @@ const ProductsDetails = () => {
                     </View>
                     <Text style={styles.descriptionTittle}>Descripción</Text>
                     <Text style={styles.description}>{data.descripcion_producto}</Text>
+                    <View style={styles.existenciasRow}>
+                        <Text style={styles.existenciasT}>Existencias:</Text>
+                        <Text style={styles.existenciasN}>{data.existencia_producto}</Text>
+                    </View>
                     <View style={styles.buttonContent}>
                         <View style={styles.quantityContainer}>
                             <TouchableOpacity onPress={handleDecrement} style={styles.quantityButton}>
@@ -497,6 +505,27 @@ const styles = StyleSheet.create({
         paddingHorizontal: 4,
         marginBottom: 10
     },
+    existenciasT: {
+        fontSize: 12,
+        color: "#000",
+        alignSelf: "flex-start"
+    },
+    existenciasN: {
+        fontSize: 12,
+        fontWeight: "bold",
+        color: "#d82828",
+        alignSelf: "flex-start",
+        marginLeft: 5
+    },
+    existenciasRow: {
+      display: "flex",
+        flexDirection: "row",
+        alignSelf: "flex-start",
+        marginBottom: 20,
+        backgroundColor: '#fee',
+        padding: 8,
+        borderRadius: 10
+    },
     price: {
         fontSize: 25,
         fontWeight: "bold",
@@ -531,7 +560,7 @@ const styles = StyleSheet.create({
     description: {
         fontSize: 16,
         color: "#555",
-        marginBottom: 20,
+        marginBottom: 10,
         textAlign: "left",
         width: "100%",
         alignSelf: "flex-start"
