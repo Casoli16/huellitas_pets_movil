@@ -43,9 +43,12 @@ const RecoveryPass1 = () => {
             console.log(data);
             if (data.status) {
                 ToastNotification(1, data.message, true);
-                navigation.navigate('LoginScreen');
+                //Haz que pasen 3 segundos despues de mostrar el mensaje para pasar a la siguiente pantalla
+                setTimeout(() => {
+                    navigation.navigate('LoginScreen', { email: email });
+                }, 3000);
             } else {
-                ToastNotification(2, data.message, true);
+                ToastNotification(2, 'Este correo no esta asociado con ninguna cuenta', true);
             }
         } catch (error) {
             ToastNotification(2, data.error, true);
