@@ -4,7 +4,7 @@ import fetchData, {SERVER_URL} from '../../api/components';
 
 import {View, StyleSheet, Image, Text, Dimensions, Touchable, TouchableOpacity, ScrollView} from "react-native";
 import { TextInput } from 'react-native-paper';
-import { TextInputMask } from 'react-native-masked-text';
+import { MaskedTextInput } from 'react-native-mask-text';
 import DateTimePicker from '@react-native-community/datetimepicker';
 //Importamos las fuentes a utilizar
 import Fonts from "../../fonts/fonts";
@@ -245,13 +245,11 @@ const SingUpScreen = () => {
                                     style={styles.textInput}
                                     left={<TextInput.Icon icon="card-account-details-outline" />}
                                     render={(props) => (
-                                        <TextInputMask
+                                        <MaskedTextInput
                                             {...props}
-                                            type={'custom'}
-                                            options={{
-                                                mask: '99999999-9'
-                                            }}
+                                            mask= '99999999-9'
                                             value={dui}
+                                            placeholder='Dui'
                                             onChangeText={setDUI}
                                         />
                                     )}
@@ -283,12 +281,11 @@ const SingUpScreen = () => {
                                     style={styles.textInput}
                                     left={<TextInput.Icon icon="phone-outline" />}
                                     render={(props) => (
-                                        <TextInputMask
+                                        <MaskedTextInput
                                             {...props}
-                                            type={'custom'}
-                                            options={{
-                                                mask: '9999-9999'
-                                            }}
+                                            mask= '9999-9999'
+                                            placeholder='Teléfono'
+                                            keyboardType={"numeric"}
                                             value={phone}
                                             onChangeText={setPhone}
                                         />

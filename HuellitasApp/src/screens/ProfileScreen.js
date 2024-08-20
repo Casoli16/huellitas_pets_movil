@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import fetchData from '../../api/components'; // Función personalizada para realizar peticiones a la API
 import { View, StyleSheet, Image, Text, Dimensions, ScrollView } from "react-native";
 import { TextInput, IconButton } from 'react-native-paper'; // Componentes de Paper para diseño
-import { TextInputMask } from 'react-native-masked-text'; // Componente para máscaras en inputs
+import { MaskedTextInput } from 'react-native-mask-text'; // Componente para máscaras en inputs
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native"; // Hooks de navegación
 import CustomButton from "../components/CustomeButton"; // Componente de botón personalizado
 import UpdatePasswordModal from '../components/UpdatePasswordModal'; // Componente para actualizar contraseñ
@@ -146,10 +146,10 @@ const ProfileScreen = ({setName, setPicture, setLoad}) => {
                                         style={styles.textInput}
                                         left={<TextInput.Icon icon="card-account-details-outline" />}
                                         render={(props) => (
-                                            <TextInputMask
+                                            <MaskedTextInput
                                                 {...props}
-                                                type="custom"
-                                                options={{ mask: '99999999-9' }}
+                                                mask= '99999999-9'
+                                                placeholder='Dui'
                                                 value={profile.dui_cliente}
                                                 editable={false}
                                             />
@@ -180,10 +180,11 @@ const ProfileScreen = ({setName, setPicture, setLoad}) => {
                                         style={styles.textInput}
                                         left={<TextInput.Icon icon="phone-outline" />}
                                         render={(props) => (
-                                            <TextInputMask
+                                            <MaskedTextInput
                                                 {...props}
-                                                type="custom"
-                                                options={{ mask: '9999-9999' }}
+                                                mask= '9999-9999'
+                                                placeholder='Teléfono'
+                                                keyboardType={"numeric"}
                                                 value={profile.telefono_cliente}
                                                 editable={false}
                                             />

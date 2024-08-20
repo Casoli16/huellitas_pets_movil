@@ -1,9 +1,9 @@
 // Variable que guarda la ip para importarla en la ruta general del servidor
 //Api de guayoip-config 192.168.0.4 otra ip de guayito: 192.168.89.162
-let ip = `192.168.0.11`;
+let ip = `huellitaspets.shop`;
 
 // URL base del servidor
-export const SERVER_URL = `http://${ip}/Huellitas_pets/system_huellitas/api/`;
+export const SERVER_URL = `https://${ip}/Huellitas_pets/system_huellitas/api/`;
 
 // Función que maneja las peticiones fetch
 export default async function fetchData(filename, action, form = null) {
@@ -16,16 +16,16 @@ export default async function fetchData(filename, action, form = null) {
     try {
         // Construcción de la URL con los parámetros necesarios
         const PATH = new URL(SERVER_URL + filename);
-        console.log('PATH', PATH); // Para ver la URL construida
         PATH.searchParams.append('action', action);
 
         // Realización de la petición fetch
         const RESPONSE = await fetch(PATH.href, OPTIONS);
-        console.log('RESPONSE', RESPONSE); // Para ver la respuesta
+
         // Verificación del estado de la respuesta
         if (!RESPONSE.ok) {
             throw new Error(`HTTP error! status: ${RESPONSE.status}`);
         }
+
         // Parseo del JSON de la respuesta
         const DATA = await RESPONSE.json();
         console.log('RESPONSE', DATA); // Para ver el JSON recibido

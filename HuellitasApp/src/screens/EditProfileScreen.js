@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import fetchData from '../../api/components';
 import {View, StyleSheet, Image, Text, Dimensions, ScrollView, TouchableOpacity, Button, Alert} from "react-native"; // Añadido Button
 import { TextInput, IconButton } from 'react-native-paper';
-import { TextInputMask } from 'react-native-masked-text';
+import { MaskedTextInput } from 'react-native-mask-text';
 import { useNavigation } from "@react-navigation/native";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Fonts from "../../fonts/fonts";
@@ -283,12 +283,10 @@ const EditProfileScreen = () => {
                                        style={styles.textInput}
                                        left={<TextInput.Icon icon="card-account-details-outline" />}
                                        render={(props) => (
-                                           <TextInputMask
+                                           <MaskedTextInput
                                                {...props}
-                                               type={'custom'}
-                                               options={{
-                                                   mask: '99999999-9'
-                                               }}
+                                               mask='99999999-9'
+                                               placeholder='Dui'
                                                value={dui}
                                                onChangeText={setDUI}
                                            />
@@ -320,13 +318,12 @@ const EditProfileScreen = () => {
                                        style={styles.textInput}
                                        left={<TextInput.Icon icon="phone-outline" />}
                                        render={(props) => (
-                                           <TextInputMask
+                                           <MaskedTextInput
                                                {...props}
-                                               type={'custom'}
-                                               options={{
-                                                   mask: '9999-9999'
-                                               }}
+                                               mask= '9999-9999'
                                                value={phone}
+                                               placeholder='Teléfono'
+                                               keyboardType={"numeric"}
                                                onChangeText={setPhone}
                                            />
                                        )}
