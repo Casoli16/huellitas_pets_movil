@@ -101,18 +101,25 @@ const CartScreen = () => {
 //Funciones para manejar el aumento y reducción de cantidad en los productos.
     const handleIncrease = async (index) => {
         const newProducts = [...products];
-        if(newProducts[index].cantidad_detalle_pedido < (newProducts[index].cantidad_detalle_pedido + newProducts[index].existencia_producto)) {
-            newProducts[index].cantidad_detalle_pedido += 1;
-            setProducts(newProducts);
-        } else{
+
+        // Parseamos las cantidades a enteros para evitar errores
+        let cantidadActual = parseInt(newProducts[index].cantidad_detalle_pedido, 10);
+        let existenciaProducto = parseInt(newProducts[index].existencia_producto, 10);
+
+        // Verificar si la cantidad actual es menor que las existencias
+        if (cantidadActual <= existenciaProducto) {
+            newProducts[index].cantidad_detalle_pedido = cantidadActual + 1; // Suma correctamente
+            setProducts(newProducts); // Actualiza el estado
+        } else {
             ToastNotification(3, 'Sobrepasaste el límite de existencias');
         }
 
         const updateCount = newProducts[index];
         const {id_detalle_pedido, cantidad_detalle_pedido} = updateCount;
-        await updateProduct(id_detalle_pedido, cantidad_detalle_pedido)
-    }
 
+        // Actualiza la cantidad en el servidor
+        await updateProduct(id_detalle_pedido, cantidad_detalle_pedido);
+    };
     //Reducir productos
     const handleDecrease = async (index) => {
         const newProducts = [...products];
