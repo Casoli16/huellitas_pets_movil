@@ -18,7 +18,7 @@ const CommentBox = ({ author, date, comment, rating }) => {
                 ))}
             </View>
             <Text style={styles.commentText}>{comment}</Text>
-            <Text style={styles.commentDate}>Publicado el {date}</Text>
+            <Text style={styles.commentDate}>{date}</Text>
         </View>
     );
 };

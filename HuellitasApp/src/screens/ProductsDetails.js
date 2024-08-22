@@ -187,6 +187,7 @@ const ProductsDetails = () => {
                 ToastNotification(1, data.message, true);
                 setComment("");
                 setUserRating(0);
+                await fetchComentarios();
             } else {
                 ToastNotification(2, data.error, true);
             }
