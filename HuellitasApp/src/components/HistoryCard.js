@@ -73,7 +73,7 @@ const HistoryCard = () => {
                                             Cantidad: {item.cantidad} Unidades
                                         </Text>
                                     </View>
-                                    <Text style={styles.price}>${item.precio_total}</Text>
+                                    <Text style={styles.price}>${item.precio_total * item.cantidad}</Text>
                                 </View>
                                 <View style={styles.separator} />
                             </View>
