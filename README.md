@@ -6,10 +6,14 @@
 3. Eduardo René Cubías Morán
 
 # Descripción del proyecto:
-Huellitas pets es una tienda de productos enfocada para mascotas (Perros y gatos), en las áreas de alimentación, cuidado e higiene y entretenimiento.
+Huellitas pets es una tienda de productos enfocada para mascotas (Perros y gatos), en las áreas de alimentación, cuidado e higiene y entretenimiento. en este repositorio se encuentra unicamente la versión movil, sin la API.
 
 # Licencia creative:
 Reconocimiento-SinObraDerivada
+
+#Tencologías usadas:
+1. react-native.
+2. javascript.
 
 # Dependecias utilizadas:
     "react-native-alert-notification"
